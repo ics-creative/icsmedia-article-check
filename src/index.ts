@@ -4,7 +4,7 @@ import {getPath} from "./utils/getPath";
 import {readFile} from "./utils/readFile";
 import {MD_NAME} from "./consts/consts";
 import {toHtml} from "./utils/toHtml";
-import {articleHeadingLevelCheck} from "./articleCheck/articleHeadingLevelCheck";
+import {articleHeadingLevelCheck} from "./logics/articleCheck/articleHeadingLevelCheck";
 import {expiredLinkCheck} from "./logics/expiredLinkCheck/expiredLinkCheck";
 
 // チェックするファイルがあるディレクトリのパスを取得
