@@ -30,7 +30,7 @@ cd Document/git/ics-articles/entry/230426
 
 2. 以下のコマンドを実施します。
 ```shell
-npx ics-kitagawa/article-check
+npx ics-kitagawa/ics-article-check
 ```
 
 3. エラーがあった場合はコンソールに表示されます。
