@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "module": "system",
+    "module": "CommonJS",
     "lib": ["dom", "es6", "es2017", "esnext.asynciterable"],
     "sourceMap": false,
     "rootDir": "src",
@@ -18,5 +18,9 @@
     "removeComments": true,
     "outFile": "./index.js"
   },
-  "includes": ["src"]
+  "includes": ["src"],
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node"
+  }
 }
