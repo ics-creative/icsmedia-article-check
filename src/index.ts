@@ -4,7 +4,6 @@ import {getPath} from "./utils/getPath";
 import {readFile} from "./utils/readFile";
 import {MD_NAME} from "./consts/consts";
 import {toHtml} from "./utils/toHtml";
-import {expiredLinkCheck} from "./expiredLinkCheck/expiredLinkCheck";
 import {articleHeadingLevelCheck} from "./articleCheck/articleHeadingLevelCheck";
 import {expiredLinkCheck} from "./logics/expiredLinkCheck/expiredLinkCheck";
 
