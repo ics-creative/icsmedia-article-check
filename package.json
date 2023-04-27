@@ -6,13 +6,12 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc -b",
-    "start": "ts-node src/index.ts"
+    "start-dev": "ts-node src/index.ts",
+    "start-prod": "node index.js"
   },
   "author": "",
   "license": "ISC",
-  "bin": {
-    "ics-article-check": "./index.js"
-  },
+  "bin": "./index.js",
   "dependencies": {},
   "devDependencies": {
     "@types/node": "^18.16.1",
