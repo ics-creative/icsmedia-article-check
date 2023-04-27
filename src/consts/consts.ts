@@ -2,7 +2,7 @@
 export const MD_NAME = "index.md";
 
 /** 画像ファイルのディレクトリ名 */
-export const IMAGE_DIR = "images";
+export const IMAGE_DIR = "/images";
 
 /** ログとログを分けるために使用します */
 export const LOG_SEPARATOR = "-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-";

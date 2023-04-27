@@ -5,6 +5,7 @@ import {readFile} from "./utils/readFile";
 import {MD_NAME} from "./consts/consts";
 import {toHtml} from "./utils/toHtml";
 import {expiredLinkCheck} from "./logics/expiredLinkCheck/expiredLinkCheck";
+import {fileCapacityCheck} from "./logics/fileCapacityCheck/fileCapacityCheck";
 
 // チェックするファイルがあるディレクトリのパスを取得
 const basePath = getPath();
@@ -15,3 +16,6 @@ const html = toHtml(mdFile);
 
 // リンク切れチェック
 void expiredLinkCheck(html);
+
+// 容量チェック
+fileCapacityCheck(basePath);
