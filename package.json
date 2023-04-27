@@ -3,10 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "build": "tsc -b",
-    "start-dev": "ts-node src/index.ts",
+    "start-dev": "cross-env NODE_ENV=development ts-node src/index.ts",
     "start-prod": "node index.js",
     "lint-fix": "eslint --fix --ext .ts,.js ."
   },
