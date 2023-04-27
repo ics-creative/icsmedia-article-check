@@ -4,7 +4,7 @@ import {getPath} from "./utils/getPath";
 import {readFile} from "./utils/readFile";
 import {MD_NAME} from "./consts/consts";
 import {toHtml} from "./utils/toHtml";
-import {expiredLinkCheck} from "./expiredLinkCheck/expiredLinkCheck";
+import {expiredLinkCheck} from "./logics/expiredLinkCheck/expiredLinkCheck";
 
 // チェックするファイルがあるディレクトリのパスを取得
 const basePath = getPath();
@@ -14,4 +14,4 @@ const mdFile = readFile(`${basePath}/${MD_NAME}`);
 const html = toHtml(mdFile);
 
 // リンク切れチェック
-expiredLinkCheck(html);
+void expiredLinkCheck(html);
