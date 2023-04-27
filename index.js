@@ -1,3 +1,3 @@
-#!/user/bin/env node
+#!/usr/bin/env node
 
-console.log("test");
+console.log("test")
