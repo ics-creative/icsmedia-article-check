@@ -11,7 +11,7 @@
   "author": "",
   "license": "ISC",
   "bin": {
-    "ics-article-check": "index.js"
+    "ics-article-check": "./index.js"
   },
   "dependencies": {},
   "devDependencies": {
