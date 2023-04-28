@@ -42,7 +42,7 @@ const checkErrorHeading = (text: string): string[] => {
     }
     if (PATTERN_ERROR_TAG.test(heading)) {
       heading.match(PATTERN_ERROR_TAG);
-      errorMessages.push("\n\x1b[31m見出しに素の<>タグは使えません。\x1b[39m");
+      errorMessages.push("\n\x1b[31m見出しに素の<>タグは使えません。バッククォートで囲むかエスケープ文字を使用ください。\x1b[39m");
     }
     // エラー判定の場合のみ該当の見出しを表示する
     const errorHeading = errorMessages.length > 0 ? heading : "";
