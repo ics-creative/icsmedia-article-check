@@ -16,8 +16,7 @@ const PATTERN_ERROR_ZERO_SPACE = /\n#{3,5}[^#|\s]+/g;
 const PATTERN_ERROR_TAG = /\n#{3,5}[^`]*<.+>[^`]*/g;
 
 /**
- * 使用できない見出しレベルを使用していないかチェックを行います。
- * (見出しレベル3~5が使用可能)
+ * 使用できない見出しのパターンを使用していないかチェックを行います。
  * */
 const checkErrorHeading = (text: string): string[] => {
   // #から始まる見出しの形を抽出
@@ -29,7 +28,7 @@ const checkErrorHeading = (text: string): string[] => {
   return headings.map((heading) => {
     switch (true) {
       case PATTERN_ERROR_LEVEL.test(heading):
-        // 連続行でエラーが続くと一つ飛ばしにしか表示されないのでmatchさせて回避しています
+        // 連続でエラーが続くと一つ飛ばしにしか表示されないのでmatchさせて回避しています
         heading.match(PATTERN_ERROR_LEVEL);
         return "使用できない見出しレベルです\n" + removeNewline(heading);
 
@@ -52,7 +51,7 @@ const checkErrorHeading = (text: string): string[] => {
 };
 
 /**
- * 文頭の改行コードを取り除きます。
+ * 改行コードを取り除きます。
  * */
 const removeNewline = (text: string): string => {
   return text.replace(/\n/g, "");
