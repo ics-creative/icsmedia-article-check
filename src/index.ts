@@ -8,6 +8,7 @@ import {articleHeadingLevelCheck} from "./logics/articleCheck/articleHeadingLeve
 import {expiredLinkCheck} from "./logics/expiredLinkCheck/expiredLinkCheck";
 import {fileCapacityCheck} from "./logics/fileCapacityCheck/fileCapacityCheck";
 import {eyecatchCheck} from "./logics/eyecatchCheck/eyecatchCheck";
+import {articleDateCheck} from "./logics/articleCheck/articleDateCheck";
 
 // チェックするファイルがあるディレクトリのパスを取得
 const basePath = getPath();
@@ -21,6 +22,9 @@ void expiredLinkCheck(html);
 
 // 容量チェック
 fileCapacityCheck(basePath);
+
+// 公開日と更新日の整合性チェック
+articleDateCheck(mdFile);
 
 // アイキャッチの検証
 void eyecatchCheck(basePath);
