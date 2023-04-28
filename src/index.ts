@@ -6,6 +6,7 @@ import {MD_NAME} from "./consts/consts";
 import {toHtml} from "./utils/toHtml";
 import {articleHeadingLevelCheck} from "./logics/articleCheck/articleHeadingLevelCheck";
 import {expiredLinkCheck} from "./logics/expiredLinkCheck/expiredLinkCheck";
+import {fileCapacityCheck} from "./logics/fileCapacityCheck/fileCapacityCheck";
 
 // チェックするファイルがあるディレクトリのパスを取得
 const basePath = getPath();
@@ -16,6 +17,9 @@ const html = toHtml(mdFile);
 
 // リンク切れチェック
 void expiredLinkCheck(html);
+
+// 容量チェック
+fileCapacityCheck(basePath);
 
 // htmlに変換される前の見出しレベルのチェック
 articleHeadingLevelCheck(mdFile);
