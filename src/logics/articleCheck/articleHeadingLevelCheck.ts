@@ -30,7 +30,7 @@ const checkErrorHeading = (text: string): string[] => {
     if (PATTERN_ERROR_LEVEL.test(heading)) {
       // 連続でエラーが続くと一つ飛ばしにしか表示されないのでmatchさせて回避しています
       heading.match(PATTERN_ERROR_LEVEL);
-      errorMessages.push("\n\x1b[31m使用できない見出しレベルです。\x1b[39m");
+      errorMessages.push("\n\x1b[31m使用できない見出しレベルです。h3とh4が使用できます。\x1b[39m");
     }
     if (PATTERN_ERROR_SPACE.test(heading)) {
       heading.match(PATTERN_ERROR_SPACE);
