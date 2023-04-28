@@ -1,6 +1,5 @@
 import {printErrorLog} from "../utils/printErrorLog";
 
-
 /** 関連記事の行の正規表現（文字列内で一番最初のrelated:のみ） */
 const PATTERN_RELATED = /related:.+\n/;
 
@@ -27,25 +26,52 @@ const countRelated = (text: string): string => {
   // カンマ区切りで分割し、余分なスペースを取り除いて返す
   const relatedArticlesArray = extractedRelatedArticles.split(",").map(value => value.trim());
 
-  return confirmRelatedLength(relatedArticlesArray);
+  return generateMessage(relatedArticlesArray);
 };
 
-
 /**
- * 関連記事の個数に応じてメッセージを返します。
+ * 関連記事の個数をチェックします。
  * */
-const confirmRelatedLength = (relatedArticlesArray: string[]): string => {
+const checkRelatedLength = (relatedArray: string[]): string => {
   // 関連記事の所定の本数
   const PREDETERMINED_RELATED_NUMBER = 8;
   // 所定の関連記事の本数との差分
-  const difference = Math.abs(PREDETERMINED_RELATED_NUMBER - relatedArticlesArray.length);
-  // 配列を文字列に連結
-  const relatedArticlesText = relatedArticlesArray.join(",");
+  const difference = Math.abs(PREDETERMINED_RELATED_NUMBER - relatedArray.length);
+  if (relatedArray.length > 8) {
+    return `関連記事が${difference}点多いです。\n`;
+  } else if (relatedArray.length < 8) {
+    return `関連記事が${difference}点足りません。\n`;
+  } else {
+    return "";
+  }
+};
 
-  if (relatedArticlesArray.length > 8) {
-    return `関連記事が${difference}点多いです。\n` + relatedArticlesText;
-  } else if (relatedArticlesArray.length < 8) {
-    return `関連記事が${difference}点足りません。\n` + relatedArticlesText;
+/**
+ * 関連記事の重複をチェックします。
+ */
+const checkDuplication = (relatedArray: string[]): string => {
+  const result = [...new Set(relatedArray)];
+  if (relatedArray.length !== result.length) {
+    return "関連記事が重複しています。\n";
+  } else {
+    return "";
+  }
+};
+
+/**
+ * エラーメッセージ用に配列を文字列に結合します。
+ * */
+const toStringForErrorMessage = (relatedArray: string[]) => {
+  // 配列を文字列に連結
+  return relatedArray.join(",");
+};
+
+/**
+ * エラーメッセージを生成します。
+ * */
+const generateMessage = (relatedArray: string[]) => {
+  if (checkRelatedLength(relatedArray) || checkDuplication(relatedArray)) {
+    return checkRelatedLength(relatedArray) + checkDuplication(relatedArray) + toStringForErrorMessage(relatedArray);
   } else {
     return "";
   }
