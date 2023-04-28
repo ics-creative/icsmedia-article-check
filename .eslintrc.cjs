@@ -26,6 +26,7 @@ module.exports = {
     "semi-style": ["error", "last"],
     "no-extra-semi": "error",
     "no-unexpected-multiline": "error",
-    "no-unreachable": "error"
+    "no-unreachable": "error",
+    "@typescript-eslint/restrict-template-expressions": "off"
   },
 };

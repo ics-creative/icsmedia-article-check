@@ -7,6 +7,7 @@ import {toHtml} from "./utils/toHtml";
 import {articleHeadingLevelCheck} from "./logics/articleCheck/articleHeadingLevelCheck";
 import {expiredLinkCheck} from "./logics/expiredLinkCheck/expiredLinkCheck";
 import {fileCapacityCheck} from "./logics/fileCapacityCheck/fileCapacityCheck";
+import {eyecatchCheck} from "./logics/eyecatchCheck/eyecatchCheck";
 
 // チェックするファイルがあるディレクトリのパスを取得
 const basePath = getPath();
@@ -20,6 +21,9 @@ void expiredLinkCheck(html);
 
 // 容量チェック
 fileCapacityCheck(basePath);
+
+// アイキャッチの検証
+void eyecatchCheck(basePath);
 
 // htmlに変換される前の見出しレベルのチェック
 articleHeadingLevelCheck(mdFile);
