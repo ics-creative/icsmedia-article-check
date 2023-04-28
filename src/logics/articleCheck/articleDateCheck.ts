@@ -1,10 +1,12 @@
 import {printErrorLog} from "../../utils/printErrorLog";
 
+/** 公開日の日付の正規表現 */
 const PATTERN_PUBLISHED = /published_date:.*/;
+/** 更新日の日付の正規表現 */
 const PATTERN_MODIFIED = /modified_date:.*/;
 
 /**
- * 記事の公開日か更新日を取得します。
+ * 記事の公開日|更新日に続く数字の部分を取得します。
  * */
 const getDate = (text: string, pattern: RegExp): string => {
   const dateLine = text.match(pattern);
@@ -20,6 +22,8 @@ const getDate = (text: string, pattern: RegExp): string => {
 const checkDate = (text: string): string[] => {
   const publishedDate = getDate(text, PATTERN_PUBLISHED);
   const modifiedDate = getDate(text, PATTERN_MODIFIED);
+  // TODO 今日の日付より未来が指定されていたらエラーにする
+  // 数字型に変換します
   const publishedDateNumber = Number(publishedDate.replace(/-/g, ""));
   const modifiedDateNumber = Number(modifiedDate.replace(/-/g, ""));
   if (publishedDateNumber > modifiedDateNumber) {
