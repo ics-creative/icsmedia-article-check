@@ -30,4 +30,4 @@ void eyecatchCheck(basePath);
 articleHeadingLevelCheck(mdFile);
 
 // 公開日と更新日の整合性チェック
-articleDateCheck(mdFile);
+articleDateCheck(html);
