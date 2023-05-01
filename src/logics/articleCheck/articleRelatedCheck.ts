@@ -21,7 +21,7 @@ const countRelated = (text: string): string[] => {
     return [];
   }
   // 関連記事を抽出
-  const stringRelated = lineRelated[0].replace(/^related:|,\n$|\n$/g, "");
+  const stringRelated = lineRelated[0].replace(/^related:|,\s*\n$|\s*\n$/g, "");
   // カンマ区切りで分割
   const arrayRelated = stringRelated.split(",");
 
@@ -39,10 +39,9 @@ const isValidLength = (array: string[]): boolean => {
 };
 
 /**
- * 関連記事と所定の個数の差分
+ * 関連記事と規定の個数の差分
  * */
 const checkDifference = (array: string[]): string => {
-  // 所定の関連記事の本数との差分
   const difference = Math.abs(PRESCRIBED_NUMBER - array.length);
   if (array.length > PRESCRIBED_NUMBER) {
     return `関連記事が${difference}点多いです。\n`;
@@ -54,11 +53,17 @@ const checkDifference = (array: string[]): string => {
 };
 
 /**
+ * 関連記事は重複しているか？
+ * */
+const isDuplicated = (array1: string[], array2: string[]) => {
+  return array1.length !== array2.length;
+};
+
+/**
  * 関連記事の重複
  */
-const checkDuplication = (array: string[]): string => {
-  const arrayWithoutDuplicates = [...new Set(array)];
-  if (array.length !== arrayWithoutDuplicates.length) {
+const checkDuplication = (array: string[], arrayWithoutDuplicates: string[]): string => {
+  if (isDuplicated(array, arrayWithoutDuplicates)) {
     return "関連記事が重複しています。\n";
   } else {
     return "";
@@ -76,11 +81,11 @@ const arrayToString = (array: string[]): string => {
  * エラーメッセージを生成します。
  * */
 const generateMessages = (array: string[]): string[] => {
-  if (isValidLength(array)) {
+  const arrayWithoutDuplicates = [...new Set(array)];
+  if (isValidLength(array) && !isDuplicated(array, arrayWithoutDuplicates)) {
     return [];
-  } else {
-    return [checkDifference(array) + checkDuplication(array) + arrayToString(array)];
   }
+  return [checkDifference(array) + checkDuplication(array, arrayWithoutDuplicates) + arrayToString(array)];
 };
 
 /**
