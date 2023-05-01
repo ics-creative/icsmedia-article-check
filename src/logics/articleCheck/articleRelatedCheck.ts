@@ -6,9 +6,6 @@ const PATTERN_RELATED = /---(.|\n)+related:.+\n(.|\n)+---/;
 /** 関連記事の行の正規表現 */
 const PATTERN_RELATED_LINE = /related:.+\n/;
 
-/** カンマ区切りの「英数字と-_」の単語の正規表現 */
-const PATTERN_COMMAS = /[\w-]+(?:\s*,\s*[\w-]+)*/g;
-
 /**
  * 関連記事の個数を検証します。
  * */
@@ -24,14 +21,9 @@ const countRelated = (text: string): string[] => {
     return [];
   }
   // 関連記事を抽出
-  const related = lineRelated[0].replace(/related:/, "").match(PATTERN_COMMAS);
-  if (!related) {
-    return [];
-  }
-  // 文字列にまとめる
-  const stringRelated = arrayToString(related);
-  // カンマ区切りで分割し、余分なスペースを取り除いて返す
-  const arrayRelated = stringRelated.split(",").map(value => value.trim());
+  const stringRelated = lineRelated[0].replace(/^related:|,\n$|\n$/g, "");
+  // カンマ区切りで分割
+  const arrayRelated = stringRelated.split(",");
 
   return generateMessages(arrayRelated);
 };
