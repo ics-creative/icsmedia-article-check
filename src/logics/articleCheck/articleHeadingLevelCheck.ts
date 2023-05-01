@@ -15,33 +15,37 @@ const PATTERN_ERROR_ZERO_SPACE = /\n#+[^#|\s]+/g;
 /**
  * 使用できない見出しのパターンを使用していないかチェックを行います。
  * */
-const checkErrorHeading = (text: string): string[] => {
+const checkErrorHeadings = (text: string): string[] => {
   // #から始まる見出しの形を抽出
   const headings = text.match(PATTERN_BASE);
   if (!headings) {
     return [];
   }
 
-  return headings.map((heading) => {
+  const errorHeadings: string[] = [];
+  headings.forEach((heading) => {
     const errorMessages = [];
     if (PATTERN_ERROR_LEVEL.test(heading)) {
-      // 連続でエラーが続くと一つ飛ばしにしか表示されないのでmatchさせて回避しています
+      // 連続でエラーが続くと一つ飛ばしにしか表示されないのでmatchさせて回避
       heading.match(PATTERN_ERROR_LEVEL);
-      errorMessages.push("\n使用できない見出しレベルです。h3とh4が使用できます。");
+      errorMessages.push("使用できない見出しレベルです。h3とh4が使用できます。");
     }
     if (PATTERN_ERROR_SPACE.test(heading)) {
       heading.match(PATTERN_ERROR_SPACE);
-      errorMessages.push("\n全角スペースが含まれています。");
+      errorMessages.push("全角スペースが含まれています。");
     }
     if (PATTERN_ERROR_ZERO_SPACE.test(heading)) {
       heading.match(PATTERN_ERROR_ZERO_SPACE);
-      errorMessages.push("\n#の直後に半角スペースがありません。");
+      errorMessages.push("#の直後に半角スペースがありません。");
     }
 
-    // エラー判定の場合のみ該当の見出しを表示する
-    const errorHeading = errorMessages.length > 0 ? heading : "";
-    return errorMessages.join(",").replace(/,/g, "") + errorHeading;
-  }).filter(heading => heading); // 空の文字列を除外する
+    // エラー判定があった場合のみ配列に追加
+    if (errorMessages.length > 0) {
+      const result = errorMessages.join(",").replace(/,/g, "\n") + heading;
+      errorHeadings.push(result);
+    }
+  });
+  return errorHeadings;
 };
 
 /**
@@ -49,5 +53,5 @@ const checkErrorHeading = (text: string): string[] => {
  * @param mdFile マークダウン形式の記事
  * */
 export const articleHeadingLevelCheck = (mdFile: string) => {
-  printErrorLog(["見出しレベルのチェックを行います。"], checkErrorHeading(mdFile));
+  printErrorLog(["見出しレベルのチェックを行います。"], checkErrorHeadings(mdFile));
 };
