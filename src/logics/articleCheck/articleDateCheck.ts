@@ -12,7 +12,7 @@ const PATTERN_MODIFIED = /modified_date:.*/;
 const getDate = (textArray: string[], pattern: RegExp) => {
   // 行を抽出
   const lineDate = textArray.find((text) => pattern.test(text));
-  return [lineDate?.replace(/(published|modified)_date:\s*/, "") ?? ""];
+  return lineDate?.replace(/(published|modified)_date:\s*/, "") ?? null;
 };
 
 /**
@@ -20,27 +20,20 @@ const getDate = (textArray: string[], pattern: RegExp) => {
  * */
 const checkDate = (text: string[]) => {
   // 日付の数字を抽出
-  const stringPublished = getDate(text, PATTERN_PUBLISHED).filter(n => n);
-  const stringModified = getDate(text, PATTERN_MODIFIED).filter(n => n);
+  const stringPublished = getDate(text, PATTERN_PUBLISHED);
+  const stringModified = getDate(text, PATTERN_MODIFIED);
   return generateMessages(stringPublished, stringModified);
-};
-
-/**
- * 無効な配列か？
- */
-const isInvalidLength = (date: string[]) => {
-  return date.length !== 1;
 };
 
 /**
  * 公開日｜更新日の抜けをチェック
  */
-const checkMissingDate = (stringPublished: string[], stringModified: string[]) => {
+const checkMissingDate = (stringPublished: string | null, stringModified: string | null) => {
   const missingArray = [];
-  if (isInvalidLength(stringPublished)) {
+  if (!stringPublished) {
     missingArray.push("published_date");
   }
-  if (isInvalidLength(stringModified)) {
+  if (!stringModified) {
     missingArray.push("modified_date");
   }
   return missingArray;
@@ -49,24 +42,21 @@ const checkMissingDate = (stringPublished: string[], stringModified: string[]) =
 /**
  * エラーメッセージを生成します。
  */
-const generateMessages = (stringPublished: string[], stringModified: string[]): string[] => {
-  if (isInvalidLength(stringPublished) || isInvalidLength(stringModified)) {
+const generateMessages = (stringPublished: string | null, stringModified: string | null): string[] => {
+  if (!stringPublished || !stringModified) {
     return [`${checkMissingDate(stringPublished, stringModified)}が抜けています。`];
   }
-  // Date型に変換した日付
-  const datePublished = stringPublished[0];
-  const dateModified = stringModified[0];
 
   const today = dateToString(new Date());
 
   const messages = [];
-  if (datePublished > dateModified) {
+  if (stringPublished > stringModified) {
     messages.push(`公開日と更新日が不整合です。更新日より公開日の方が新しくなっています。\npublished_date: ${stringPublished}\nmodified_date: ${stringModified}`);
   }
-  if (datePublished > today) {
+  if (stringPublished > today) {
     messages.push(`公開日に未来の日付が登録されています。\n今日の日付：${today}\npublished_date: ${stringPublished}`);
   }
-  if (dateModified > today) {
+  if (stringModified > today) {
     messages.push(`更新日に未来の日付が登録されています。\n今日の日付：${today}\nmodified_date: ${stringModified}`);
   }
   return messages;
