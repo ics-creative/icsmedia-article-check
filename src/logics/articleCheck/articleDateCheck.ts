@@ -62,7 +62,7 @@ const generateMessages = (stringPublished: string[], stringModified: string[], t
   if (datePublished > today) {
     messages.push(`公開日に未来の日付が登録されています。\n今日の日付：${dateToString(today)}\npublished_date: ${stringPublished}`);
   }
-  if (datePublished > today) {
+  if (dateModified > today) {
     messages.push(`更新日に未来の日付が登録されています。\n今日の日付：${dateToString(today)}\nmodified_date: ${stringModified}`);
   }
   return messages;
