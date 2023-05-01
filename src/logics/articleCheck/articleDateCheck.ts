@@ -1,7 +1,7 @@
 import {printErrorLog} from "../../utils/printErrorLog";
 
 /** マークダウンファイル冒頭の公開日|更新日の正規表現 */
-const PATTERN_HEAD_DATE = /---(.|\n)+[a-z]+_date:.+\n(.|\n)+---/;
+const PATTERN_HEAD_DATE = /---(.|\n)+[a-z]+_date:.+\n(.|\n)+(.|\n)+[a-z]+_date:.+\n(.|\n)+---/;
 
 /** 公開日の日付の正規表現 */
 const PATTERN_PUBLISHED = /published_date:.*/;
