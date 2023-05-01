@@ -8,7 +8,7 @@ import {articleHeadingLevelCheck} from "./logics/articleCheck/articleHeadingLeve
 import {expiredLinkCheck} from "./logics/expiredLinkCheck/expiredLinkCheck";
 import {fileCapacityCheck} from "./logics/fileCapacityCheck/fileCapacityCheck";
 import {eyecatchCheck} from "./logics/eyecatchCheck/eyecatchCheck";
-import {articleRelatedCheck} from "./articleCheck/articleRelatedCheck";
+import {articleRelatedCheck} from "./logics/articleCheck/articleRelatedCheck";
 
 // チェックするファイルがあるディレクトリのパスを取得
 const basePath = getPath();

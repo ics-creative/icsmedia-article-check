@@ -1,4 +1,4 @@
-import {printErrorLog} from "../utils/printErrorLog";
+import {printErrorLog} from "../../utils/printErrorLog";
 
 /** 関連記事の正規表現（マークダウンファイル冒頭のrelated:） */
 const PATTERN_RELATED = /---(.|\n)+related:.+\n(.|\n)+---/;
@@ -14,44 +14,47 @@ const PATTERN_COMMAS = /[\w-]+(?:\s*,\s*[\w-]+)*/g;
  * */
 const countRelated = (text: string): string[] => {
   // 記事冒頭のrelated:を抽出
-  const related = text.match(PATTERN_RELATED);
-  if (!related) {
+  const headRelated = text.match(PATTERN_RELATED);
+  if (!headRelated) {
     return ["関連記事が存在しません。"];
   }
   // 関連記事の行を抽出
-  const relatedLine = related[0].match(PATTERN_RELATED_LINE);
-  if (!relatedLine) {
+  const lineRelated = headRelated[0].match(PATTERN_RELATED_LINE);
+  if (!lineRelated) {
     return [];
   }
-  // 「related:〜」以降の関連記事を抽出
-  const relatedArticles = relatedLine[0].replace(/related:/, "").match(PATTERN_COMMAS);
-  if (!relatedArticles) {
+  // 関連記事を抽出
+  const related = lineRelated[0].replace(/related:/, "").match(PATTERN_COMMAS);
+  if (!related) {
     return [];
   }
   // 文字列にまとめる
-  const relatedArticlesString = arrayToString(relatedArticles);
+  const stringRelated = arrayToString(related);
   // カンマ区切りで分割し、余分なスペースを取り除いて返す
-  const extractedRelatedArticles = relatedArticlesString.split(",").map(value => value.trim());
+  const arrayRelated = stringRelated.split(",").map(value => value.trim());
 
-  return generateMessage(extractedRelatedArticles);
+  return generateMessages(arrayRelated);
 };
 
+/** 関連記事の規定の数 */
+const PRESCRIBED_NUMBER = 8;
+
 /**
- * 関連記事の個数は所定の個数か？
+ * 関連記事は規定の個数か？
  * */
-const isValidLength = (relatedArray: string[]): boolean => {
-  return relatedArray.length === 8;
+const isValidLength = (array: string[]): boolean => {
+  return array.length === PRESCRIBED_NUMBER;
 };
 
 /**
  * 関連記事と所定の個数の差分
  * */
-const checkDifference = (relatedArray: string[]): string => {
+const checkDifference = (array: string[]): string => {
   // 所定の関連記事の本数との差分
-  const difference = Math.abs(8 - relatedArray.length);
-  if (relatedArray.length > 8) {
+  const difference = Math.abs(PRESCRIBED_NUMBER - array.length);
+  if (array.length > PRESCRIBED_NUMBER) {
     return `関連記事が${difference}点多いです。\n`;
-  } else if (relatedArray.length < 8) {
+  } else if (array.length < PRESCRIBED_NUMBER) {
     return `関連記事が${difference}点足りません。\n`;
   } else {
     return "";
@@ -61,9 +64,9 @@ const checkDifference = (relatedArray: string[]): string => {
 /**
  * 関連記事の重複
  */
-const checkDuplication = (relatedArray: string[]): string => {
-  const noDuplicationArray = [...new Set(relatedArray)];
-  if (relatedArray.length !== noDuplicationArray.length) {
+const checkDuplication = (array: string[]): string => {
+  const arrayWithoutDuplicates = [...new Set(array)];
+  if (array.length !== arrayWithoutDuplicates.length) {
     return "関連記事が重複しています。\n";
   } else {
     return "";
@@ -80,11 +83,11 @@ const arrayToString = (array: string[]): string => {
 /**
  * エラーメッセージを生成します。
  * */
-const generateMessage = (relatedArray: string[]): string[] => {
-  if (isValidLength(relatedArray)) {
+const generateMessages = (array: string[]): string[] => {
+  if (isValidLength(array)) {
     return [];
   } else {
-    return [checkDifference(relatedArray) + checkDuplication(relatedArray) + arrayToString(relatedArray)];
+    return [checkDifference(array) + checkDuplication(array) + arrayToString(array)];
   }
 };
 
