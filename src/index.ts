@@ -23,11 +23,11 @@ void expiredLinkCheck(html);
 // 容量チェック
 fileCapacityCheck(basePath);
 
-// 公開日と更新日の整合性チェック
-articleDateCheck(mdFile);
-
 // アイキャッチの検証
 void eyecatchCheck(basePath);
 
 // htmlに変換される前の見出しレベルのチェック
 articleHeadingLevelCheck(mdFile);
+
+// 公開日と更新日の整合性チェック
+articleDateCheck(mdFile);
