@@ -4,6 +4,7 @@ import {getPath} from "./utils/getPath";
 import {readFile} from "./utils/readFile";
 import {MD_NAME} from "./consts/consts";
 import {toHtml} from "./utils/toHtml";
+import {articleHeadingLevelCheck} from "./logics/articleCheck/articleHeadingLevelCheck";
 import {expiredLinkCheck} from "./logics/expiredLinkCheck/expiredLinkCheck";
 import {fileCapacityCheck} from "./logics/fileCapacityCheck/fileCapacityCheck";
 import {eyecatchCheck} from "./logics/eyecatchCheck/eyecatchCheck";
@@ -23,3 +24,6 @@ fileCapacityCheck(basePath);
 
 // アイキャッチの検証
 void eyecatchCheck(basePath);
+
+// htmlに変換される前の見出しレベルのチェック
+articleHeadingLevelCheck(mdFile);
