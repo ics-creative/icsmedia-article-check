@@ -20,20 +20,20 @@ const getDate = (textArray: string[], pattern: RegExp) => {
  * */
 const checkDate = (text: string[]) => {
   // 日付の数字を抽出
-  const stringPublished = getDate(text, PATTERN_PUBLISHED);
-  const stringModified = getDate(text, PATTERN_MODIFIED);
-  return generateMessages(stringPublished, stringModified);
+  const publishedDate = getDate(text, PATTERN_PUBLISHED);
+  const modifiedDate = getDate(text, PATTERN_MODIFIED);
+  return generateMessages(publishedDate, modifiedDate);
 };
 
 /**
  * 公開日｜更新日の抜けをチェック
  */
-const checkMissingDate = (stringPublished: string | null, stringModified: string | null) => {
+const checkMissingDate = (publishedDate: string | null, modifiedDate: string | null) => {
   const missingArray = [];
-  if (!stringPublished) {
+  if (!publishedDate) {
     missingArray.push("published_date");
   }
-  if (!stringModified) {
+  if (!modifiedDate) {
     missingArray.push("modified_date");
   }
   return missingArray;
@@ -42,22 +42,22 @@ const checkMissingDate = (stringPublished: string | null, stringModified: string
 /**
  * エラーメッセージを生成します。
  */
-const generateMessages = (stringPublished: string | null, stringModified: string | null): string[] => {
-  if (!stringPublished || !stringModified) {
-    return [`${checkMissingDate(stringPublished, stringModified)}が抜けています。`];
+const generateMessages = (publishedDate: string | null, modifiedDate: string | null): string[] => {
+  if (!publishedDate || !modifiedDate) {
+    return [`${checkMissingDate(publishedDate, modifiedDate)}が抜けています。`];
   }
 
   const today = dateToString(new Date());
 
   const messages = [];
-  if (stringPublished > stringModified) {
-    messages.push(`公開日と更新日が不整合です。更新日より公開日の方が新しくなっています。\npublished_date: ${stringPublished}\nmodified_date: ${stringModified}`);
+  if (publishedDate > modifiedDate) {
+    messages.push(`公開日と更新日が不整合です。更新日より公開日の方が新しくなっています。\npublished_date: ${publishedDate}\nmodified_date: ${modifiedDate}`);
   }
-  if (stringPublished > today) {
-    messages.push(`公開日に未来の日付が登録されています。\n今日の日付：${today}\npublished_date: ${stringPublished}`);
+  if (publishedDate > today) {
+    messages.push(`公開日に未来の日付が登録されています。\n今日の日付：${today}\npublished_date: ${publishedDate}`);
   }
-  if (stringModified > today) {
-    messages.push(`更新日に未来の日付が登録されています。\n今日の日付：${today}\nmodified_date: ${stringModified}`);
+  if (modifiedDate > today) {
+    messages.push(`更新日に未来の日付が登録されています。\n今日の日付：${today}\nmodified_date: ${modifiedDate}`);
   }
   return messages;
 };
