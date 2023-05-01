@@ -8,6 +8,7 @@ import {articleHeadingLevelCheck} from "./logics/articleCheck/articleHeadingLeve
 import {expiredLinkCheck} from "./logics/expiredLinkCheck/expiredLinkCheck";
 import {fileCapacityCheck} from "./logics/fileCapacityCheck/fileCapacityCheck";
 import {eyecatchCheck} from "./logics/eyecatchCheck/eyecatchCheck";
+import {articleDateCheck} from "./logics/articleCheck/articleDateCheck";
 import {articleRelatedCheck} from "./logics/articleCheck/articleRelatedCheck";
 
 // チェックするファイルがあるディレクトリのパスを取得
@@ -31,3 +32,6 @@ articleHeadingLevelCheck(mdFile);
 
 // 関連記事の個数チェック
 articleRelatedCheck(mdFile);
+
+// 公開日と更新日の整合性チェック
+articleDateCheck(html);
