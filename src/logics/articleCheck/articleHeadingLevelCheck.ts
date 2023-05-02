@@ -1,4 +1,4 @@
-import {printErrorLog} from "../../utils/printErrorLog";
+import { printErrorLog } from "../../utils/printErrorLog";
 
 /** 見出しの正規表現 */
 const PATTERN_BASE = /\n#+.+/g;

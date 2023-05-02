@@ -1,4 +1,4 @@
-import {LOG_ERROR, LOG_INFO, LOG_SEPARATOR} from "../consts/consts";
+import { LOG_ERROR, LOG_INFO, LOG_SEPARATOR } from "../consts/consts";
 
 /**
  * エラーログを出力します。<br>

@@ -1,4 +1,4 @@
-import {printErrorLog} from "../../utils/printErrorLog";
+import { printErrorLog } from "../../utils/printErrorLog";
 
 /** 関連記事の正規表現（マークダウンファイル冒頭のrelated:） */
 const PATTERN_RELATED = /---(.|\n)+related:.+\n(.|\n)+---/;

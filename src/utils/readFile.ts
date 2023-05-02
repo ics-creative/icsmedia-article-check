@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import process from "process";
-import {LOG_ERROR} from "../consts/consts";
+import { LOG_ERROR } from "../consts/consts";
 
 /**
  * 引数で受け取ったパスのファイルを読み込みます

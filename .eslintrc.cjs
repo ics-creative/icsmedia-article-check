@@ -27,6 +27,8 @@ module.exports = {
     "no-extra-semi": "error",
     "no-unexpected-multiline": "error",
     "no-unreachable": "error",
-    "@typescript-eslint/restrict-template-expressions": "off"
+    "@typescript-eslint/restrict-template-expressions": "off",
+    "indent": ["error", 2],
+    "object-curly-spacing": ["error", "always"]
   },
 };
