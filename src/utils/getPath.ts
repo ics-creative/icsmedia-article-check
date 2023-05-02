@@ -1,6 +1,7 @@
-import path from "path";
 import prompts from "prompts";
 import { DEV_PATH } from "../config/filepath";
+import process from "process";
+import { ENTRY_DIR } from "../consts/consts";
 
 /**
  * チェックを行うディレクトリを取得します。
@@ -20,5 +21,5 @@ const getPrompt = async () => {
     message: "検証を行うファイル名を入力してください。 例) 230101",
     name: "value"
   });
-  return `${path.resolve(__dirname)}/${res.value}`;
+  return `${process.cwd()}${ENTRY_DIR}/${res.value}`;
 };
