@@ -16,7 +16,6 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "removeComments": true,
-    "outFile": "./index.js",
   },
   "includes": ["src"],
   "ts-node": {

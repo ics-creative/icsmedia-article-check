@@ -12,7 +12,7 @@ module.exports = {
     project: "./tsconfig.eslint.json",
     tsconfigRootDir: __dirname,
   },
-  ignorePatterns: ["dist", ".eslintrc.*"],
+  ignorePatterns: ["build", ".eslintrc.*", "*.config.*", "*.md"],
   extends: [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
@@ -27,6 +27,8 @@ module.exports = {
     "no-extra-semi": "error",
     "no-unexpected-multiline": "error",
     "no-unreachable": "error",
-    "@typescript-eslint/restrict-template-expressions": "off"
+    "@typescript-eslint/restrict-template-expressions": "off",
+    "indent": ["error", 2],
+    "object-curly-spacing": ["error", "always"]
   },
 };

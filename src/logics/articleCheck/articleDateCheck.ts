@@ -1,4 +1,4 @@
-import {printErrorLog} from "../../utils/printErrorLog";
+import { printErrorLog } from "../../utils/printErrorLog";
 
 /** 公開日の日付の正規表現 */
 const PATTERN_PUBLISHED = /published_date:.*/;

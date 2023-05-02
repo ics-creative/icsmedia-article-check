@@ -1,8 +1,8 @@
-import {readDirectory} from "../../utils/readDirectory";
-import {IMAGE_DIR} from "../../consts/consts";
+import { readDirectory } from "../../utils/readDirectory";
+import { IMAGE_DIR } from "../../consts/consts";
 import sizeOf from "image-size";
-import {promisify} from "util";
-import {printErrorLog} from "../../utils/printErrorLog";
+import { promisify } from "util";
+import { printErrorLog } from "../../utils/printErrorLog";
 
 const sizeOfSync = promisify(sizeOf);
 
