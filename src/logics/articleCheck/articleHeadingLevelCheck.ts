@@ -1,7 +1,7 @@
 import { printErrorLog } from "../../utils/printErrorLog";
 
 /** 見出しの正規表現 */
-const PATTERN_BASE = /\n#+.+/g;
+const PATTERN_BASE = /(?<!(```|~~~).+)\n#+.+(?!(```|~~~))/g;
 
 /** 見出しレベルにh3とh4以外を設定しているパターンの正規表現 */
 const PATTERN_ERROR_LEVEL = /\n(#{1,2}|#{5,})(\s|\u3000|[^#]).+/g;
