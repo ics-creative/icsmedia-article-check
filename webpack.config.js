@@ -6,14 +6,7 @@ module.exports = {
   mode: "production",
   target: "node",
   plugins: [ new ShebangPlugin()],
-  externals: [
-    nodeExternals({
-      modulesFromFile: {
-        exclude: ["dependencies"],
-        include: ["devDependencies"],
-      },
-    }),
-  ],
+  externals: [nodeExternals()],
   entry: {
     "build": path.resolve(__dirname, "./src/index.ts")
   },
