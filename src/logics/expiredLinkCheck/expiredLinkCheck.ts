@@ -32,8 +32,8 @@ export const expiredLinkCheck = async (html: string[]) => {
     return ex.status === "rejected" ?
     // Promiseのrejected.reasonのany型を解決できなかったのでeslintを一時的にdisable
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      `${ex.reason.message as string}\nlink: ${ex.reason.link as string}` :
-      `${ex.value.statusCode.toString()} ${ex.value.statusText}\nlink: ${ex.value.link}`;
+      `${ex.reason.message as string}\nlink:\n${ex.reason.link as string}` :
+      `${ex.value.statusCode.toString()} ${ex.value.statusText}\nlink:\n${ex.value.link}`;
   });
 
   // ログ出力
