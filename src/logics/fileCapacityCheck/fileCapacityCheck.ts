@@ -25,7 +25,7 @@ export const fileCapacityCheck = (path: string) => {
 
   // ログ出力
   const message = totalMb > 10 ? [`容量が10MBを超えています。size: ${Math.round(totalMb)}MB `] : [];
-  printErrorLog(["記事と画像の容量チェックを行います。"], message);
+  printErrorLog(message);
 };
 
 const getFileSize = (filePath: string) => {

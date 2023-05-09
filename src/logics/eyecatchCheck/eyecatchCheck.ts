@@ -22,10 +22,7 @@ export const eyecatchCheck = async (path: string) => {
   const eyecatchDir = readDirectory(`${path}${IMAGE_DIR}`).filter((dir) => dir.name.startsWith("eyecatch"));
 
   if (eyecatchDir.length === 0) {
-    printErrorLog(
-      ["アイキャッチ画像をチェックします。", `${path}${IMAGE_DIR}`],
-      ["アイキャッチ画像が存在しません。"]
-    );
+    printErrorLog(["アイキャッチ画像が存在しません。"]);
     return;
   }
 
@@ -33,10 +30,7 @@ export const eyecatchCheck = async (path: string) => {
   const messages = await validate(`${path}${IMAGE_DIR}/${eyecatchDir.at(0)?.name}`);
 
   // ログ出力
-  printErrorLog(
-    ["アイキャッチ画像をチェックします。", `${path}${IMAGE_DIR}/${eyecatchDir.at(0)?.name}`],
-    messages
-  );
+  printErrorLog(messages);
 };
 
 const validate = async (path: string) => {
@@ -45,20 +39,20 @@ const validate = async (path: string) => {
   const messages: string[] = [];
 
   if(!result) {
-    messages.push("画像が不正です。");
+    messages.push("アイキャッチ画像が不正です。");
     return messages;
   }
 
   if (!result.type || !VALID_FILE_TYPE.includes(result.type)) {
-    messages.push(`画像の形式はjpgかpngのみ有効です。type:${result.type}`);
+    messages.push(`アイキャッチ画像の形式はjpgかpngのみ有効です。type:${result.type}`);
   }
 
   if(result.width !== 1280) {
-    messages.push(`画像の横幅は1280pxである必要があります。width:${result.width}`);
+    messages.push(`アイキャッチ画像の横幅は1280pxである必要があります。width:${result.width}`);
   }
 
   if(result.height !== 512) {
-    messages.push(`画像の縦幅は512pxである必要があります。height:${result.height}`);
+    messages.push(`アイキャッチ画像の縦幅は512pxである必要があります。height:${result.height}`);
   }
 
   return messages;

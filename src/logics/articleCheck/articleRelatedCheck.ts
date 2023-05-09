@@ -93,6 +93,5 @@ const generateMessages = (array: string[]): string[] => {
  * @param mdFile マークダウン形式の記事
  * */
 export const articleRelatedCheck = (mdFile: string) => {
-  const errorMessages = countRelated(mdFile);
-  printErrorLog(["関連記事の個数チェックを行います。"], errorMessages);
+  printErrorLog(countRelated(mdFile));
 };

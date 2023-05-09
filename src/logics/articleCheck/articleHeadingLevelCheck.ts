@@ -60,5 +60,5 @@ const checkErrorHeadings = (text: string): string[] => {
  * @param html html形式の記事
  * */
 export const articleHeadingLevelCheck = (html: string) => {
-  printErrorLog(["見出しレベルのチェックを行います。"], checkErrorHeadings(html));
+  printErrorLog(checkErrorHeadings(html));
 };

@@ -37,7 +37,7 @@ export const expiredLinkCheck = async (html: string[]) => {
   });
 
   // ログ出力
-  printErrorLog(["リンク切れのチェックを行います。"], messages);
+  printErrorLog(messages);
   printNoProblemLog();
 };
 

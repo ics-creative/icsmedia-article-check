@@ -77,5 +77,5 @@ const dateToString = (date: Date): string => {
  * @param html マークダウン形式の記事
  * */
 export const articleDateCheck = (html: string[]) => {
-  printErrorLog(["記事公開日と更新日の整合性のチェックを行います。"], checkDate(html));
+  printErrorLog(checkDate(html));
 };
