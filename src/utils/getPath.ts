@@ -18,7 +18,7 @@ export const getPath = async () => {
 const getPrompt = async () => {
   const res = await prompts<string>({
     type: "text",
-    message: "検証を行うファイル名を入力してください。 例) 230101",
+    message: "記事IDを指定ください。 例) 230101",
     name: "value"
   });
   return `${process.cwd()}${ENTRY_DIR}/${res.value}`;
