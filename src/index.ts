@@ -23,7 +23,7 @@ const validate = async () => {
   const htmlText = toHtmlText(mdFile);
 
   // リンク切れチェック
-  void expiredLinkCheck(html);
+  void expiredLinkCheck(htmlText);
   // 容量チェック
   fileCapacityCheck(basePath);
   // アイキャッチの検証

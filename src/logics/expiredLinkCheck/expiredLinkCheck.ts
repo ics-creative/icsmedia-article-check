@@ -1,17 +1,18 @@
-import { notNull } from "../../utils/notNull";
 import axios from "axios";
 import { printErrorLog } from "../../utils/printErrorLog";
+import { parse } from "node-html-parser";
+import { notNull } from "../../utils/notNull";
 
 /**
  * htmlに変換した記事からアンカーリンクを抽出し、リンク切れになっていないかを検証します。
  * @param html html形式の記事
  */
-export const expiredLinkCheck = async (html: string[]) => {
-  // htmlからリンクを抽出
-  const links = html
-    .flatMap(content => content.split(/["']/)) // クオーテーションで分割する
-    .filter(notNull)
-    .filter(content => content.startsWith("http")); // httpで始まるもの = リンク本体 だけを抜き出す
+export const expiredLinkCheck = async (html: string) => {
+  const parsed = parse(html);
+  // リンクを抽出
+  const links = parsed.querySelectorAll("a")
+    .map((l) => l.getAttribute("href"))
+    .filter(notNull);
 
   // axiosでリクエストを送信する
   const requests = links.map(link => {
