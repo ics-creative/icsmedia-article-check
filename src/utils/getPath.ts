@@ -18,7 +18,7 @@ export const getPath = async () => {
 const getPrompt = async () => {
   const res = await prompts<string>({
     type: "text",
-    message: "記事IDを指定ください。 例) 230101",
+    message: "記事IDを指定ください。 例) 200317",
     name: "value"
   });
 
