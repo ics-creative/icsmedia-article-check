@@ -21,5 +21,10 @@ const getPrompt = async () => {
     message: "記事IDを指定ください。 例) 230101",
     name: "value"
   });
-  return `${process.cwd()}${ENTRY_DIR}/${res.value}`;
+
+  // url（https://ics.media/entry/■■■■/）で入力された場合は記事IDに変換
+  // any型を解決できなかったのでeslintを一時的にdisable
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
+  const articleId  = res.value.replace(/(http.+ics.media\/entry\/)|\/$/g, "");
+  return `${process.cwd()}${ENTRY_DIR}/${articleId}`;
 };
