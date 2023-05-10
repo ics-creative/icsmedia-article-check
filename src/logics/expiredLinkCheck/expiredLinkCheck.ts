@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from "axios";
-import { printErrorLog } from "../../utils/printErrorLog";
+import { printErrorLog, printNoProblemLog } from "../../utils/printErrorLog";
 import { parse } from "node-html-parser";
 import { notNull } from "../../utils/notNull";
 
@@ -36,7 +36,7 @@ export const expiredLinkCheck = async (html: string) => {
     return ex.status === "rejected" ?
       // Promiseのrejected.reasonのany型を解決できなかったのでeslintを一時的にdisable
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      `${ex.reason.message as string} link:${ex.reason.link as string}` :
+      `${ex.reason.message as string}\nlink:\n${ex.reason.link as string}` :
       `リクエストとレスポンスのurlが異なっています。\nrequest:\n${ex.value.link}\nresponse:\n${ex.value.resUrl}`;
   });
   // ログ出力
