@@ -15,6 +15,7 @@
     "axios": "1.4.0",
     "image-size": "1.0.2",
     "markdown-it": "13.0.1",
+    "node-html-parser": "6.1.5",
     "prompts": "2.4.2"
   },
   "devDependencies": {
