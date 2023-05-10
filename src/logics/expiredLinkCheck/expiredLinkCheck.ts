@@ -29,18 +29,32 @@ export const expiredLinkCheck = async (html: string) => {
   // 並列で処理を行う
   const results = await Promise.allSettled(requests);
   // リクエストが失敗したもの or リクエストのurlとレスポンスのurlが違うものを抽出
-  const expired = results.filter(res => res.status === "rejected" || res.value.resUrl !== res.value.link);
+  const expired = results.filter(res => res.status === "rejected" || !isSameUrl(res.value.link, res.value.resUrl));
+
   // エラーメッセージを構築
   const messages = expired.map((ex) => {
     return ex.status === "rejected" ?
-    // Promiseのrejected.reasonのany型を解決できなかったのでeslintを一時的にdisable
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      // Promiseのrejected.reasonのany型を解決できなかったのでeslintを一時的にdisable
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       `${ex.reason.message as string} link:${ex.reason.link as string}` :
       `リクエストとレスポンスのurlが異なっています。\nrequest:\n${ex.value.link}\nresponse:\n${ex.value.resUrl}`;
   });
   // ログ出力
   printErrorLog(["リンク切れのチェックを行います。"], messages);
 };
+
+const isSameUrl = (url1:string, url2: string) => {
+  const urlObj1 = new URL(url1);
+  const urlObj2 = new URL(url2);
+  // urlのoriginが一緒 かつ トレイリングスラッシュを除いたpathnameが一緒なら同じURLとする
+  return urlObj1.origin === urlObj2.origin && withoutTrailingSlash(urlObj1.pathname) === withoutTrailingSlash(urlObj2.pathname);
+};
+
+// 最後が/(スラッシュ)でおわる文字列の正規表現
+const REG_LAST_SLASH = /\/$/;
+
+const withoutTrailingSlash = (str: string) =>
+  REG_LAST_SLASH.test(str) ? str.slice(0, -1) : str;
 
 type Response = {
   link: string,
