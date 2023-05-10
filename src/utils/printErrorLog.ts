@@ -1,9 +1,6 @@
 import { LOG_ERROR } from "../consts/consts";
 import * as console from "console";
 
-/** エラーをカウントするための変数*/
-let numberOfErrors = 0;
-
 /**
  * エラーログを出力します。<br>
  * 例)<br>
@@ -13,19 +10,12 @@ let numberOfErrors = 0;
  * @param errorMessages エラーメッセージ
  */
 export const printErrorLog = (errorMessages: string[]) => {
-  // エラーがあった場合のみメッセージを出力
-  if (errorMessages.length > 0) {
-    numberOfErrors++;
-    errorMessages.forEach((message) => console.warn(`${LOG_ERROR}${message}`));
-  }
+  errorMessages.forEach((message) => console.warn(`${LOG_ERROR}${message}`));
 };
 
 /**
- * 記事に問題がなかった場合にログを出力します。<br>
- * <strong>※リンク切れをチェックする関数内で実行します。</strong>
+ * 記事に問題がなかった場合にログを出力します。
  * */
 export const printNoProblemLog = () => {
-  if (numberOfErrors === 0) {
-    console.log("✨ この記事に問題はありませんでした。");
-  }
+  console.log("✨ この記事に問題はありませんでした。");
 };

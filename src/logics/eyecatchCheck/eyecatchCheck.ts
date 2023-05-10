@@ -2,7 +2,6 @@ import { readDirectory } from "../../utils/readDirectory";
 import { IMAGE_DIR } from "../../consts/consts";
 import sizeOf from "image-size";
 import { promisify } from "util";
-import { printErrorLog } from "../../utils/printErrorLog";
 
 const sizeOfSync = promisify(sizeOf);
 
@@ -22,15 +21,12 @@ export const eyecatchCheck = async (path: string) => {
   const eyecatchDir = readDirectory(`${path}${IMAGE_DIR}`).filter((dir) => dir.name.startsWith("eyecatch"));
 
   if (eyecatchDir.length === 0) {
-    printErrorLog(["アイキャッチ画像が存在しません。"]);
-    return;
+    return ["アイキャッチ画像が存在しません。"];
   }
 
   // 画像を検証
   const messages = await validate(`${path}${IMAGE_DIR}/${eyecatchDir.at(0)?.name}`);
-
-  // ログ出力
-  printErrorLog(messages);
+  return messages;
 };
 
 const validate = async (path: string) => {

@@ -1,5 +1,3 @@
-import { printErrorLog } from "../../utils/printErrorLog";
-
 /** 公開日の日付の正規表現 */
 const PATTERN_PUBLISHED = /published_date:.*/;
 
@@ -77,5 +75,5 @@ const dateToString = (date: Date): string => {
  * @param html マークダウン形式の記事
  * */
 export const articleDateCheck = (html: string[]) => {
-  printErrorLog(checkDate(html));
+  return checkDate(html);
 };

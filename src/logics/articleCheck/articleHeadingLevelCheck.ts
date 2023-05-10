@@ -1,5 +1,3 @@
-import { printErrorLog } from "../../utils/printErrorLog";
-
 /** 使用できない見出しを抽出するための正規表現 */
 const PATTERN_ERROR = /(<h[1256]>(?<!title:).+<\/h[1256]>)|(\n<p>#{2,}.+)/g;
 
@@ -60,5 +58,5 @@ const checkErrorHeadings = (text: string): string[] => {
  * @param html html形式の記事
  * */
 export const articleHeadingLevelCheck = (html: string) => {
-  printErrorLog(checkErrorHeadings(html));
+  return checkErrorHeadings(html);
 };

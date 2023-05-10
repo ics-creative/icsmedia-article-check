@@ -1,5 +1,4 @@
 import axios, { AxiosResponse } from "axios";
-import { printErrorLog, printNoProblemLog } from "../../utils/printErrorLog";
 import { parse } from "node-html-parser";
 import { notNull } from "../../utils/notNull";
 
@@ -39,9 +38,7 @@ export const expiredLinkCheck = async (html: string) => {
       `${ex.reason.message as string}\nlink:\n${ex.reason.link as string}` :
       `リクエストとレスポンスのurlが異なっています。\nrequest:\n${ex.value.link}\nresponse:\n${ex.value.resUrl}`;
   });
-  // ログ出力
-  printErrorLog(messages);
-  printNoProblemLog();
+  return messages;
 };
 
 const isSameUrl = (url1:string, url2: string) => {

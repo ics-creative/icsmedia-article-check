@@ -1,7 +1,6 @@
 import fs from "node:fs";
 import { IMAGE_DIR, MD_NAME } from "../../consts/consts";
 import { readDirectory } from "../../utils/readDirectory";
-import { printErrorLog } from "../../utils/printErrorLog";
 
 /**
  * 引数で渡されたパス配下のファイルの容量を検証します。<br>
@@ -25,7 +24,7 @@ export const fileCapacityCheck = (path: string) => {
 
   // ログ出力
   const message = totalMb > 10 ? [`容量が10MBを超えています。size: ${Math.round(totalMb)}MB `] : [];
-  printErrorLog(message);
+  return message;
 };
 
 const getFileSize = (filePath: string) => {
