@@ -16,15 +16,13 @@ export const getPath = async () => {
 };
 
 const getPrompt = async () => {
-  const res = await prompts<string>({
+  const res: Record<string, string> = await prompts<string>({
     type: "text",
     message: "記事IDを指定ください。 例) 200317",
     name: "value"
   });
 
   // url（https://ics.media/entry/■■■■/）で入力された場合は記事IDに変換
-  // any型を解決できなかったのでeslintを一時的にdisable
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
   const articleId  = res.value.replace(/(http.+ics.media\/entry\/)|\/$/g, "");
   return `${process.cwd()}${ENTRY_DIR}/${articleId}`;
 };
