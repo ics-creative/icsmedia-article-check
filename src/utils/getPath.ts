@@ -16,10 +16,13 @@ export const getPath = async () => {
 };
 
 const getPrompt = async () => {
-  const res = await prompts<string>({
+  const res: Record<string, string> = await prompts<string>({
     type: "text",
-    message: "検証を行うファイル名を入力してください。 例) 230101",
+    message: "記事IDを指定ください。 例) 200317",
     name: "value"
   });
-  return `${process.cwd()}${ENTRY_DIR}/${res.value}`;
+
+  // url（https://ics.media/entry/■■■■/）で入力された場合は記事IDに変換
+  const articleId  = res.value.replace(/(http.+ics.media\/entry\/)|\/$/g, "");
+  return `${process.cwd()}${ENTRY_DIR}/${articleId}`;
 };
