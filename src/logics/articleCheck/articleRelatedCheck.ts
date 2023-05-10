@@ -1,5 +1,3 @@
-import { printErrorLog } from "../../utils/printErrorLog";
-
 /** 関連記事の正規表現（マークダウンファイル冒頭のrelated:） */
 const PATTERN_RELATED = /---(.|\n)+related:.+\n(.|\n)+---/;
 
@@ -93,6 +91,5 @@ const generateMessages = (array: string[]): string[] => {
  * @param mdFile マークダウン形式の記事
  * */
 export const articleRelatedCheck = (mdFile: string) => {
-  const errorMessages = countRelated(mdFile);
-  printErrorLog(["関連記事の個数チェックを行います。"], errorMessages);
+  return countRelated(mdFile);
 };
