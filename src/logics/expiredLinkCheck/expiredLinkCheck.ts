@@ -6,6 +6,7 @@ type LinkCheckResult = {
   resUrl: string;
 };
 
+/** リンク検証失敗時に付与するリンク URL を保持するエラー */
 class LinkCheckError extends Error {
   constructor(
     readonly link: string,
@@ -16,8 +17,9 @@ class LinkCheckError extends Error {
   }
 }
 
+/** リンク検証用 fetch のヘッダー（CDN等によるブロックを避けるためUA等を付与） */
 const defaultFetchHeaders = (): Record<string, string> => ({
-  // 最小限の UA だけだと CDN に弾かれやすい
+  // 最小限のUAだけだとCDNに弾かれやすい
   "User-Agent":
     "Mozilla/5.0 (compatible; icsmedia-article-check/1.0; +https://ics.media)",
   Accept:
@@ -53,6 +55,10 @@ export const expiredLinkCheck = async (html: string) => {
   return messages;
 };
 
+/**
+ * Promiseが rejectした理由をユーザー向けのエラー文に整形します。
+ * @param reason rejectの値（LinkCheckErrorならメッセージとURLを含める）
+ */
 const formatRejectedReason = (reason: unknown): string => {
   if (reason instanceof LinkCheckError) {
     return `${reason.message}\nlink:\n${reason.link}`;
@@ -60,6 +66,10 @@ const formatRejectedReason = (reason: unknown): string => {
   return `${String(reason)}\nlink:\n（不明）`;
 };
 
+/**
+ * 1件のURLにGETし、最終的なレスポンスURLを返します。失敗時はLinkCheckErrorを投げます。
+ * @param link 検証する絶対 URL
+ */
 const fetchLink = async (link: string): Promise<LinkCheckResult> => {
   try {
     const res = await fetch(link, {
@@ -81,6 +91,11 @@ const fetchLink = async (link: string): Promise<LinkCheckResult> => {
   }
 };
 
+/**
+ * リダイレクト後も「同一ページ」とみなせるか比較します（originとpathname、末尾スラッシュを正規化）。
+ * @param url1 リクエストURL
+ * @param url2 レスポンスの最終URL
+ */
 const isSameUrl = (url1: string, url2: string) => {
   const urlObj1 = new URL(url1);
   const urlObj2 = new URL(url2);
@@ -91,5 +106,6 @@ const isSameUrl = (url1: string, url2: string) => {
 // 最後が/(スラッシュ)でおわる文字列の正規表現
 const REG_LAST_SLASH = /\/$/;
 
+/** pathname末尾の `/` を除いて比較用に正規化します */
 const withoutTrailingSlash = (str: string) =>
   REG_LAST_SLASH.test(str) ? str.slice(0, -1) : str;

@@ -13,6 +13,10 @@ import { articleDateCheck } from "./logics/articleCheck/articleDateCheck";
 import { articleRelatedCheck } from "./logics/articleCheck/articleRelatedCheck";
 import { printErrorLog, printNoProblemLog } from "./utils/printErrorLog";
 
+/**
+ * 記事ディレクトリを解決し、マークダウンを読み込んで各種チェックを並列実行し、
+ * エラーがあれば警告ログ、なければ成功ログを出力します。
+ */
 const validate = async () => {
   // チェックするファイルがあるディレクトリのパスを取得
   const basePath = await getPath();

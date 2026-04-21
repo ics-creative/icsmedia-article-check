@@ -15,6 +15,10 @@ export const getPath = async () => {
   return env === "development" ? DEV_PATH : await getPrompt();
 };
 
+/**
+ * 本番環境で対話入力から記事 ID を取得し、記事ディレクトリの絶対パスを組み立てます。
+ * URL（ics.media の entry URL）で入力された場合は記事 ID に正規化します。
+ */
 const getPrompt = async () => {
   const res: Record<string, string> = await prompts<string>({
     type: "text",
