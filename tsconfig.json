@@ -21,9 +21,5 @@
     "noFallthroughCasesInSwitch": true,
     "removeComments": true
   },
-  "includes": ["src"],
-  "ts-node": {
-    "esm": true,
-    "experimentalSpecifierResolution": "node"
-  },
+  "include": ["src"]
 }
