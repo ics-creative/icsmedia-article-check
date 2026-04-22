@@ -45,7 +45,7 @@ npm run start-dev
 ビルド後の `build/index.js` は、`ics-articles` リポジトリのルートで、チェック対象が `entry/<記事ID>/` にある前提で使います。
 
 - **引数なし** … 従来どおり、対話で記事 ID を聞きます。
-- **第1引数に記事 ID** … プロンプトを出さず、その値（または `https://ics.media/entry/<記事ID>/` 形式の URL）を記事 ID に正規化して使います。`-` で始まるオプション形式は使いません。
+- **第1引数に記事 ID** … プロンプトを出さず、その値（または `https://ics.media/entry/<記事ID>/` 形式の URL）を記事 ID に正規化して使います。
 
 ```shell
 npm run build
