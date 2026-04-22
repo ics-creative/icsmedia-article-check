@@ -9,3 +9,6 @@ export const ENTRY_DIR = "/entry";
 
 /** エラー時のログの頭に付与します */
 export const LOG_ERROR = "[Error]:";
+
+/** フロントマター `related` に列挙する関連記事の規定本数 */
+export const RELATED_ARTICLE_COUNT = 9;
