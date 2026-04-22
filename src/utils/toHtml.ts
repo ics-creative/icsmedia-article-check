@@ -8,6 +8,6 @@ const SEPARATOR = /\n/g;
  * @param mdContent マークダウンファイル
  */
 export const toHtml = (mdContent: string) => {
-  const md = new MarkdownIt();
+  const md = new MarkdownIt({ html: true });
   return md.render(mdContent).split(SEPARATOR);
 };

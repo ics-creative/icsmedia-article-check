@@ -6,13 +6,16 @@ import { ENTRY_DIR } from "../consts/consts";
 /**
  * チェックを行うディレクトリを取得します。
  * <br>
- * 開発環境：config/filepath.tsで指定したディレクトリを使用
+ * 開発環境：環境変数 `ARTICLE_CHECK_BASE_PATH` があればそれを、なければ config/filepath.ts の `DEV_PATH` を使用
  * <br>
  * 本番環境：対話型cliで指定されたディレクトリを使用
  */
 export const getPath = async () => {
   const env = process.env.NODE_ENV;
-  return env === "development" ? DEV_PATH : await getPrompt();
+  if (env === "development") {
+    return process.env.ARTICLE_CHECK_BASE_PATH ?? DEV_PATH;
+  }
+  return await getPrompt();
 };
 
 /**

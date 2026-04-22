@@ -5,6 +5,6 @@ import MarkdownIt from "markdown-it";
  * @param mdContent マークダウンファイル
  */
 export const toHtmlText = (mdContent: string): string => {
-  const md = new MarkdownIt();
+  const md = new MarkdownIt({ html: true });
   return md.render(mdContent);
 };
