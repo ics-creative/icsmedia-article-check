@@ -17,6 +17,18 @@ class LinkCheckError extends Error {
   }
 }
 
+/**
+ * 同一文書内アンカー（`#見出し`）など、HTTP GET で検証できない href は true。
+ * 相対パスは対象外（別途ベース URL が必要なため未対応）。
+ */
+export const shouldSkipLinkCheck = (href: string): boolean => {
+  const t = href.trim();
+  if (t === "" || t === "#") {
+    return true;
+  }
+  return t.startsWith("#");
+};
+
 /** リンク検証用 fetch のヘッダー（CDN等によるブロックを避けるためUA等を付与） */
 const defaultFetchHeaders = (): Record<string, string> => ({
   // 最小限のUAだけだとCDNに弾かれやすい
@@ -36,7 +48,8 @@ export const expiredLinkCheck = async (html: string) => {
   // リンクを抽出
   const links = parsed.querySelectorAll("a")
     .map((l) => l.getAttribute("href"))
-    .filter(notNull);
+    .filter(notNull)
+    .filter((href) => !shouldSkipLinkCheck(href));
 
   const requests = links.map((link) => fetchLink(link));
 
