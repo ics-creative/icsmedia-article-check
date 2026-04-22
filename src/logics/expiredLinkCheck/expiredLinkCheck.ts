@@ -1,4 +1,4 @@
-import { parse } from "node-html-parser";
+import { parse, type HTMLElement } from "node-html-parser";
 import { notNull } from "../../utils/notNull";
 
 type LinkCheckResult = {
@@ -25,15 +25,56 @@ class LinkCheckError extends Error {
 }
 
 /**
- * 同一文書内アンカー（`#見出し`）など、HTTP GET で検証できない href は true。
- * 相対パスは対象外（別途ベース URL が必要なため未対応）。
+ * 検証から除外する href（空、`#` のみ）。`#foo` などは同一文書内の id / name 照合で検証する。
+ * 相対パスは対象外（別途ベース URL が必要なため HTTP 検証は未対応）。
  */
 export const shouldSkipLinkCheck = (href: string): boolean => {
   const t = href.trim();
-  if (t === "" || t === "#") {
-    return true;
+  return t === "" || t === "#";
+};
+
+/** 同一 HTML 内でアンカー先になりうる id と a[name] を集める */
+const collectAnchorTargets = (root: HTMLElement): Set<string> => {
+  const ids = new Set<string>();
+  for (const el of root.querySelectorAll("[id]")) {
+    const id = el.getAttribute("id");
+    if (id) {
+      ids.add(id);
+    }
   }
-  return t.startsWith("#");
+  for (const el of root.querySelectorAll("a[name]")) {
+    const name = el.getAttribute("name");
+    if (name) {
+      ids.add(name);
+    }
+  }
+  return ids;
+};
+
+/**
+ * `href` が `#fragment` のとき、同一文書にそのアンカーがあるか検証する。問題なければ null。
+ */
+const verifySameDocumentFragment = (
+  href: string,
+  idTargets: Set<string>,
+): string | null => {
+  const t = href.trim();
+  if (!t.startsWith("#") || t === "#") {
+    return null;
+  }
+  let fragment = t.slice(1);
+  try {
+    fragment = decodeURIComponent(fragment.replace(/\+/g, " "));
+  } catch {
+    return "アンカー（#以降）のデコードに失敗しました。";
+  }
+  if (fragment === "") {
+    return "アンカーが空です。";
+  }
+  if (!idTargets.has(fragment)) {
+    return "同一記事内にアンカー先（id または a[name]）が見つかりません。";
+  }
+  return null;
 };
 
 /** npm の Web 公開サイトはボット対策で 403 になりやすい */
@@ -125,13 +166,29 @@ export const expiredLinkCheck = async (
   html: string,
 ): Promise<ExpiredLinkCheckOutcome> => {
   const parsed = parse(html);
-  // リンクを抽出
-  const links = parsed.querySelectorAll("a")
+  const idTargets = collectAnchorTargets(parsed);
+
+  const hrefs = parsed
+    .querySelectorAll("a")
     .map((l) => l.getAttribute("href"))
     .filter(notNull)
+    .map((h) => h.trim())
     .filter((href) => !shouldSkipLinkCheck(href));
 
-  const requests = links.map((link) => fetchLink(link));
+  const fragmentErrors: string[] = [];
+  const fetchLinks: string[] = [];
+  for (const href of hrefs) {
+    if (href.startsWith("#")) {
+      const msg = verifySameDocumentFragment(href, idTargets);
+      if (msg) {
+        fragmentErrors.push(`${msg}\nlink:\n${href}`);
+      }
+    } else {
+      fetchLinks.push(href);
+    }
+  }
+
+  const requests = fetchLinks.map((link) => fetchLink(link));
 
   // 並列で処理を行う
   const results = await Promise.allSettled(requests);
@@ -156,13 +213,13 @@ export const expiredLinkCheck = async (
   );
 
   // エラーメッセージを構築
-  const errors = expired.map((ex) => {
+  const fetchErrors = expired.map((ex) => {
     if (ex.status === "rejected") {
       return formatRejectedReason(ex.reason);
     }
     return `リクエストとレスポンスのurlが異なっています。\nrequest:\n${ex.value.link}\nresponse:\n${ex.value.resUrl}`;
   });
-  return { errors, warnings };
+  return { errors: [...fragmentErrors, ...fetchErrors], warnings };
 };
 
 /**

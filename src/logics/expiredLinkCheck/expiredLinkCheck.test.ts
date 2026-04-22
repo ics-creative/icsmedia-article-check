@@ -2,11 +2,11 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { expiredLinkCheck, shouldSkipLinkCheck } from "./expiredLinkCheck";
 
 describe("shouldSkipLinkCheck", () => {
-  it("フラグメントのみはスキップ", () => {
-    expect(shouldSkipLinkCheck("#foo")).toBe(true);
+  it("空と # のみスキップ（#foo は同一文書検証の対象）", () => {
+    expect(shouldSkipLinkCheck("#foo")).toBe(false);
     expect(shouldSkipLinkCheck("#")).toBe(true);
     expect(shouldSkipLinkCheck("")).toBe(true);
-    expect(shouldSkipLinkCheck("  #x ")).toBe(true);
+    expect(shouldSkipLinkCheck("  #  ")).toBe(true);
   });
 
   it("http(s) はスキップしない", () => {
@@ -33,10 +33,31 @@ describe("expiredLinkCheck", () => {
     vi.restoreAllMocks();
   });
 
-  it("フラグメントのみのリンクでは fetch しない", async () => {
+  it("同一文書の # リンクは id があれば OK で fetch しない", async () => {
     const fetchSpy = vi.spyOn(globalThis, "fetch");
     const { errors, warnings } = await expiredLinkCheck(
-      '<p><a href="#x">t</a></p>',
+      '<h2 id="x">X</h2><p><a href="#x">t</a></p>',
+    );
+    expect(errors).toEqual([]);
+    expect(warnings).toEqual([]);
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it("同一文書にアンカー先が無い # リンクはエラー（fetch しない）", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    const { errors, warnings } = await expiredLinkCheck(
+      '<p><a href="#missing">t</a></p>',
+    );
+    expect(warnings).toEqual([]);
+    expect(errors.length).toBe(1);
+    expect(errors[0]).toMatch(/アンカー先/);
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it("a[name] もアンカー先として認める", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    const { errors, warnings } = await expiredLinkCheck(
+      '<a name="legacy"></a><p><a href="#legacy">t</a></p>',
     );
     expect(errors).toEqual([]);
     expect(warnings).toEqual([]);
