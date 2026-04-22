@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { getPath } from "./utils/getPath";
+import { getPath, parseArticleIdFromArgv } from "./utils/getPath";
 import { readFile } from "./utils/readFile";
 import { MD_NAME } from "./consts/consts";
 import { toHtml } from "./utils/toHtml";
@@ -22,8 +22,27 @@ import {
  * エラーがあれば警告ログ、なければ成功ログを出力します。
  */
 const validate = async () => {
-  // チェックするファイルがあるディレクトリのパスを取得
-  const basePath = await getPath();
+  let cliArticleId: string | undefined;
+  try {
+    cliArticleId = parseArticleIdFromArgv(process.argv.slice(2));
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    console.error(msg);
+    process.exitCode = 1;
+    return;
+  }
+
+  let basePath: string;
+  try {
+    basePath = await getPath(
+      cliArticleId !== undefined ? { articleId: cliArticleId } : undefined,
+    );
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    console.error(msg);
+    process.exitCode = 1;
+    return;
+  }
   // マークダウンファイルを読み込み
   const mdFile = readFile(`${basePath}/${MD_NAME}`);
   // HTML形式に変換
