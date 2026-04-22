@@ -4,6 +4,13 @@ import { notNull } from "../../utils/notNull";
 type LinkCheckResult = {
   link: string;
   resUrl: string;
+  /** npm 公開サイトのボット対策で 403 のみ。切れリンクとは断定できない */
+  uncertainDueToNpmForbidden?: true;
+};
+
+export type ExpiredLinkCheckOutcome = {
+  errors: string[];
+  warnings: string[];
 };
 
 /** リンク検証失敗時に付与するリンク URL を保持するエラー */
@@ -29,6 +36,77 @@ export const shouldSkipLinkCheck = (href: string): boolean => {
   return t.startsWith("#");
 };
 
+/** npm の Web 公開サイトはボット対策で 403 になりやすい */
+const NPMJS_PUBLIC_HOSTS = new Set(["www.npmjs.com", "npmjs.com"]);
+
+const isNpmJsPublicUrl = (url: string): boolean => {
+  try {
+    const u = new URL(url);
+    return (
+      (u.protocol === "https:" || u.protocol === "http:") &&
+      NPMJS_PUBLIC_HOSTS.has(u.hostname)
+    );
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * `https://www.npmjs.com/package/...` からパッケージ名を取り出します（`/v/` 以降のバージョン付き URL も名前のみに正規化）。
+ * `/package/` 以外（トップや検索など）では null。
+ */
+const parseNpmPackageNameFromWebUrl = (href: string): string | null => {
+  try {
+    const u = new URL(href);
+    if (!NPMJS_PUBLIC_HOSTS.has(u.hostname)) {
+      return null;
+    }
+    const path = u.pathname.replace(/\/$/, "");
+    const m = path.match(/^\/package\/(.+)$/);
+    if (!m) {
+      return null;
+    }
+    let rest = m[1];
+    const vSep = rest.indexOf("/v/");
+    if (vSep !== -1) {
+      rest = rest.slice(0, vSep);
+    }
+    return decodeURIComponent(rest);
+  } catch {
+    return null;
+  }
+};
+
+/** www.npmjs.com は 403 になりやすいが、レジストリ API は通常到達できる */
+const verifyNpmPackageViaRegistry = async (
+  packageName: string,
+  originalLink: string,
+): Promise<LinkCheckResult> => {
+  const registryUrl = `https://registry.npmjs.org/${encodeURIComponent(packageName)}`;
+  const res = await fetch(registryUrl, {
+    method: "HEAD",
+    redirect: "follow",
+    headers: {
+      "User-Agent":
+        "Mozilla/5.0 (compatible; icsmedia-article-check/1.0; +https://ics.media)",
+    },
+  });
+  if (res.ok) {
+    return { link: originalLink, resUrl: originalLink };
+  }
+  if (res.status === 404) {
+    throw new LinkCheckError(
+      originalLink,
+      "npm レジストリにパッケージが存在しません（HTTP 404）。",
+    );
+  }
+  const detail = res.statusText ? ` ${res.statusText}` : "";
+  throw new LinkCheckError(
+    originalLink,
+    `npm レジストリの確認に失敗しました（HTTP ${res.status}${detail}）。`,
+  );
+};
+
 /** リンク検証用 fetch のヘッダー（CDN等によるブロックを避けるためUA等を付与） */
 const defaultFetchHeaders = (): Record<string, string> => ({
   // 最小限のUAだけだとCDNに弾かれやすい
@@ -43,7 +121,9 @@ const defaultFetchHeaders = (): Record<string, string> => ({
  * htmlに変換した記事からアンカーリンクを抽出し、リンク切れになっていないかを検証します。
  * @param html html形式の記事
  */
-export const expiredLinkCheck = async (html: string) => {
+export const expiredLinkCheck = async (
+  html: string,
+): Promise<ExpiredLinkCheckOutcome> => {
   const parsed = parse(html);
   // リンクを抽出
   const links = parsed.querySelectorAll("a")
@@ -55,17 +135,34 @@ export const expiredLinkCheck = async (html: string) => {
 
   // 並列で処理を行う
   const results = await Promise.allSettled(requests);
+
+  const warnings = results
+    .filter(
+      (res): res is PromiseFulfilledResult<LinkCheckResult> =>
+        res.status === "fulfilled" && res.value.uncertainDueToNpmForbidden === true,
+    )
+    .map(
+      (res) =>
+        `npm の公開サイトが自動アクセスを制限しているため（HTTP 403）、リンク切れかどうかは判定できません。ブラウザで確認してください。\nlink:\n${res.value.link}`,
+    );
+
   // リクエストが失敗したもの or リクエストのurlとレスポンスのurlが違うものを抽出
-  const expired = results.filter(res => res.status === "rejected" || !isSameUrl(res.value.link, res.value.resUrl));
+  const expired = results.filter(
+    (res) =>
+      res.status === "rejected" ||
+      (res.status === "fulfilled" &&
+        !res.value.uncertainDueToNpmForbidden &&
+        !isSameUrl(res.value.link, res.value.resUrl)),
+  );
 
   // エラーメッセージを構築
-  const messages = expired.map((ex) => {
+  const errors = expired.map((ex) => {
     if (ex.status === "rejected") {
       return formatRejectedReason(ex.reason);
     }
     return `リクエストとレスポンスのurlが異なっています。\nrequest:\n${ex.value.link}\nresponse:\n${ex.value.resUrl}`;
   });
-  return messages;
+  return { errors, warnings };
 };
 
 /**
@@ -85,11 +182,26 @@ const formatRejectedReason = (reason: unknown): string => {
  */
 const fetchLink = async (link: string): Promise<LinkCheckResult> => {
   try {
+    if (isNpmJsPublicUrl(link)) {
+      const packageName = parseNpmPackageNameFromWebUrl(link);
+      if (packageName) {
+        return await verifyNpmPackageViaRegistry(packageName, link);
+      }
+    }
+
     const res = await fetch(link, {
       method: "GET",
       redirect: "follow",
       headers: defaultFetchHeaders(),
     });
+    // /package/ 以外の npm ページは www へ GET。403 のときは切れとは断定できないので警告のみ
+    if (res.status === 403 && isNpmJsPublicUrl(link)) {
+      return {
+        link,
+        resUrl: res.url,
+        uncertainDueToNpmForbidden: true,
+      };
+    }
     if (!res.ok) {
       const detail = res.statusText ? ` ${res.statusText}` : "";
       throw new LinkCheckError(link, `HTTP ${res.status}${detail}`);

@@ -12,8 +12,21 @@ describe("shouldSkipLinkCheck", () => {
   it("http(s) はスキップしない", () => {
     expect(shouldSkipLinkCheck("https://example.com")).toBe(false);
     expect(shouldSkipLinkCheck("http://example.com/a")).toBe(false);
+    expect(shouldSkipLinkCheck("https://www.npmjs.com/package/react")).toBe(
+      false,
+    );
   });
 });
+
+const requestUrl = (input: RequestInfo | URL): string => {
+  if (typeof input === "string") {
+    return input;
+  }
+  if (input instanceof URL) {
+    return input.href;
+  }
+  return input.url;
+};
 
 describe("expiredLinkCheck", () => {
   afterEach(() => {
@@ -22,21 +35,112 @@ describe("expiredLinkCheck", () => {
 
   it("フラグメントのみのリンクでは fetch しない", async () => {
     const fetchSpy = vi.spyOn(globalThis, "fetch");
-    const msgs = await expiredLinkCheck('<p><a href="#x">t</a></p>');
-    expect(msgs).toEqual([]);
+    const { errors, warnings } = await expiredLinkCheck(
+      '<p><a href="#x">t</a></p>',
+    );
+    expect(errors).toEqual([]);
+    expect(warnings).toEqual([]);
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
+  it("npm のパッケージページはレジストリ HEAD で存在確認する", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(
+      (input, init) => {
+        const url = requestUrl(input);
+        expect(url).toMatch(/^https:\/\/registry\.npmjs\.org\//);
+        expect(init?.method).toBe("HEAD");
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          statusText: "OK",
+          url,
+        } as Response);
+      },
+    );
+    const { errors, warnings } = await expiredLinkCheck(
+      '<p><a href="https://www.npmjs.com/package/react">npm</a></p>',
+    );
+    expect(errors).toEqual([]);
+    expect(warnings).toEqual([]);
+    expect(fetchSpy).toHaveBeenCalledOnce();
+  });
+
+  it("npm パッケージがレジストリに無いときはエラー", async () => {
+    vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
+      const url = requestUrl(input);
+      expect(url).toContain("registry.npmjs.org");
+      return Promise.resolve({
+        ok: false,
+        status: 404,
+        statusText: "Not Found",
+        url,
+      } as Response);
+    });
+    const { errors, warnings } = await expiredLinkCheck(
+      '<p><a href="https://www.npmjs.com/package/this-package-is-missing-xyz">npm</a></p>',
+    );
+    expect(warnings).toEqual([]);
+    expect(errors.length).toBe(1);
+    expect(errors[0]).toMatch(/レジストリにパッケージが存在しません/);
+  });
+
+  it("npm の /package/ 以外は www へ GET し 403 なら警告だけ", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(
+      (input) => {
+        const url = requestUrl(input);
+        expect(url).toContain("www.npmjs.com");
+        return Promise.resolve({
+          ok: false,
+          status: 403,
+          statusText: "Forbidden",
+          url,
+        } as Response);
+      },
+    );
+    const { errors, warnings } = await expiredLinkCheck(
+      '<p><a href="https://www.npmjs.com/search?q=react">s</a></p>',
+    );
+    expect(errors).toEqual([]);
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toMatch(/HTTP 403/);
+    expect(fetchSpy).toHaveBeenCalledOnce();
+  });
+
+  it("npm 以外が HTTP 403 なら報告する", async () => {
+    vi.spyOn(globalThis, "fetch").mockImplementation(() =>
+      Promise.resolve({
+        ok: false,
+        status: 403,
+        statusText: "Forbidden",
+        url: "https://example.com/forbidden",
+      } as Response),
+    );
+    const { errors, warnings } = await expiredLinkCheck(
+      '<p><a href="https://example.com/forbidden">x</a></p>',
+    );
+    expect(warnings).toEqual([]);
+    expect(errors.length).toBe(1);
+    expect(errors[0]).toMatch(/HTTP 403/);
+  });
+
+  it("HTTP 403 以外のエラーは報告する", async () => {
+    vi.spyOn(globalThis, "fetch").mockImplementation(() =>
+      Promise.resolve({
+        ok: false,
+        status: 404,
+        statusText: "Not Found",
+        url: "https://example.com/missing",
+      } as Response),
+    );
+    const { errors, warnings } = await expiredLinkCheck(
+      '<p><a href="https://example.com/missing">x</a></p>',
+    );
+    expect(warnings).toEqual([]);
+    expect(errors.length).toBe(1);
+    expect(errors[0]).toMatch(/HTTP 404/);
+  });
+
   it("絶対URLが 200 で同一 pathname ならエラーなし", async () => {
-    const requestUrl = (input: RequestInfo | URL): string => {
-      if (typeof input === "string") {
-        return input;
-      }
-      if (input instanceof URL) {
-        return input.href;
-      }
-      return input.url;
-    };
     vi.spyOn(globalThis, "fetch").mockImplementation((input) =>
       Promise.resolve({
         ok: true,
@@ -45,9 +149,10 @@ describe("expiredLinkCheck", () => {
         url: requestUrl(input).split("#")[0],
       } as Response),
     );
-    const msgs = await expiredLinkCheck(
+    const { errors, warnings } = await expiredLinkCheck(
       '<p><a href="https://example.com/page#h">t</a></p>',
     );
-    expect(msgs).toEqual([]);
+    expect(errors).toEqual([]);
+    expect(warnings).toEqual([]);
   });
 });

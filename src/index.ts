@@ -11,7 +11,11 @@ import { fileCapacityCheck } from "./logics/fileCapacityCheck/fileCapacityCheck"
 import { eyecatchCheck } from "./logics/eyecatchCheck/eyecatchCheck";
 import { articleDateCheck } from "./logics/articleCheck/articleDateCheck";
 import { articleRelatedCheck } from "./logics/articleCheck/articleRelatedCheck";
-import { printErrorLog, printNoProblemLog } from "./utils/printErrorLog";
+import {
+  printErrorLog,
+  printNoProblemLog,
+  printWarnLog,
+} from "./utils/printErrorLog";
 
 /**
  * 記事ディレクトリを解決し、マークダウンを読み込んで各種チェックを並列実行し、
@@ -42,21 +46,35 @@ const validate = async () => {
     Promise.resolve(articleDateCheck(html)),
   ]);
 
-  // 各チェックでエラーメッセージがあった場合
-  const errors = results
-    .filter(({ status }) => status === "fulfilled")
-    .flatMap((p) => (p as PromiseFulfilledResult<string[]>).value);
+  const linkResult = results[0];
+  const linkOutcome =
+    linkResult.status === "fulfilled"
+      ? linkResult.value
+      : { errors: [] as string[], warnings: [] as string[] };
+
+  // 各チェックでエラーメッセージがあった場合（リンク検査は errors / warnings に分離）
+  const errors = [
+    ...linkOutcome.errors,
+    ...results
+      .slice(1)
+      .filter(({ status }) => status === "fulfilled")
+      .flatMap((p) => (p as PromiseFulfilledResult<string[]>).value),
+  ];
 
   // 各チェックで予期しないエラーがあった場合
   const rejected = results
     .filter(({ status }) => status === "rejected")
     .flatMap((p) => (p as PromiseRejectedResult).reason as string);
 
+  if (linkOutcome.warnings.length > 0) {
+    printWarnLog(linkOutcome.warnings);
+  }
+
   // ログを出力
   if (errors.length > 0 || rejected.length > 0) {
     printErrorLog(errors);
     printErrorLog(rejected);
-  } else {
+  } else if (linkOutcome.warnings.length === 0) {
     printNoProblemLog();
   }
 };
