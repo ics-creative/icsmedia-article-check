@@ -16,11 +16,11 @@ module.exports = {
   extends: [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:@typescript-eslint/recommended-requiring-type-checking"
+    "plugin:@typescript-eslint/recommended-type-checked"
   ],
   rules: {
     "import/prefer-default-export": "off",
-    "@typescript-eslint/quotes": ["error", "double"],
+    quotes: ["error", "double", { avoidEscape: true }],
     "semi": ["error", "always"],
     "semi-spacing": ["error", {"after": true, "before": false}],
     "semi-style": ["error", "last"],

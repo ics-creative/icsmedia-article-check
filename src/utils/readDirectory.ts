@@ -9,7 +9,7 @@ import { LOG_ERROR } from "../consts/consts";
 export const readDirectory = (path: string) => {
   try {
     return fs.readdirSync(path, { withFileTypes: true });
-  } catch (e) {
+  } catch {
     console.warn(`${LOG_ERROR}ディレクトリが存在しません。${path}`);
     process.exit(1);
   }

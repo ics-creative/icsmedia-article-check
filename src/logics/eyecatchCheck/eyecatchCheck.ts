@@ -3,6 +3,7 @@ import { IMAGE_DIR } from "../../consts/consts";
 import sizeOf from "image-size";
 import { promisify } from "util";
 
+/** `image-size`を非同期で呼び出すためのPromiseラッパー */
 const sizeOfSync = promisify(sizeOf);
 
 const VALID_FILE_TYPE = ["jpg", "png"];
@@ -29,12 +30,16 @@ export const eyecatchCheck = async (path: string) => {
   return messages;
 };
 
+/**
+ * ファイルのアイキャッチ画像の形式（jpg/png）と寸法（1280×512）を検証します。
+ * @param path 画像ファイルのパス
+ */
 const validate = async (path: string) => {
   // 画像情報を取得
   const result = await sizeOfSync(path);
   const messages: string[] = [];
 
-  if(!result) {
+  if (!result) {
     messages.push("アイキャッチ画像が不正です。");
     return messages;
   }
@@ -43,11 +48,11 @@ const validate = async (path: string) => {
     messages.push(`アイキャッチ画像の形式はjpgかpngのみ有効です。type:${result.type}`);
   }
 
-  if(result.width !== 1280) {
+  if (result.width !== 1280) {
     messages.push(`アイキャッチ画像の横幅は1280pxである必要があります。width:${result.width}`);
   }
 
-  if(result.height !== 512) {
+  if (result.height !== 512) {
     messages.push(`アイキャッチ画像の縦幅は512pxである必要があります。height:${result.height}`);
   }
 

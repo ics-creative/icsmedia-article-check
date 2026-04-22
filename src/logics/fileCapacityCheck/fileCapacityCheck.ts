@@ -27,6 +27,10 @@ export const fileCapacityCheck = (path: string) => {
   return message;
 };
 
+/**
+ * ファイルのバイトサイズを返します。
+ * @param filePath 対象ファイルのパス
+ */
 const getFileSize = (filePath: string) => {
   const stat = fs.statSync(filePath);
   return stat.size;

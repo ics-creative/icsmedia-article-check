@@ -1,6 +1,31 @@
-import axios, { AxiosResponse } from "axios";
 import { parse } from "node-html-parser";
 import { notNull } from "../../utils/notNull";
+
+type LinkCheckResult = {
+  link: string;
+  resUrl: string;
+};
+
+/** リンク検証失敗時に付与するリンク URL を保持するエラー */
+class LinkCheckError extends Error {
+  constructor(
+    readonly link: string,
+    message: string,
+  ) {
+    super(message);
+    this.name = "LinkCheckError";
+  }
+}
+
+/** リンク検証用 fetch のヘッダー（CDN等によるブロックを避けるためUA等を付与） */
+const defaultFetchHeaders = (): Record<string, string> => ({
+  // 最小限のUAだけだとCDNに弾かれやすい
+  "User-Agent":
+    "Mozilla/5.0 (compatible; icsmedia-article-check/1.0; +https://ics.media)",
+  Accept:
+    "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+  "Accept-Language": "ja,en-US;q=0.9,en;q=0.8",
+});
 
 /**
  * htmlに変換した記事からアンカーリンクを抽出し、リンク切れになっていないかを検証します。
@@ -13,17 +38,7 @@ export const expiredLinkCheck = async (html: string) => {
     .map((l) => l.getAttribute("href"))
     .filter(notNull);
 
-  // axiosでリクエストを送信する
-  const requests = links.map(link => {
-    return new Promise<Response>((resolve, reject) => {
-      axios.get(link)
-        .then((res: AxiosResponse) => {
-          const request = res.request as {res: {responseUrl: string}};
-          resolve({ link, resUrl: request.res.responseUrl });
-        })
-        .catch((err: Error) => reject({ link: link, message: err.message }));
-    });
-  });
+  const requests = links.map((link) => fetchLink(link));
 
   // 並列で処理を行う
   const results = await Promise.allSettled(requests);
@@ -32,16 +47,56 @@ export const expiredLinkCheck = async (html: string) => {
 
   // エラーメッセージを構築
   const messages = expired.map((ex) => {
-    return ex.status === "rejected" ?
-      // Promiseのrejected.reasonのany型を解決できなかったのでeslintを一時的にdisable
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      `${ex.reason.message as string}\nlink:\n${ex.reason.link as string}` :
-      `リクエストとレスポンスのurlが異なっています。\nrequest:\n${ex.value.link}\nresponse:\n${ex.value.resUrl}`;
+    if (ex.status === "rejected") {
+      return formatRejectedReason(ex.reason);
+    }
+    return `リクエストとレスポンスのurlが異なっています。\nrequest:\n${ex.value.link}\nresponse:\n${ex.value.resUrl}`;
   });
   return messages;
 };
 
-const isSameUrl = (url1:string, url2: string) => {
+/**
+ * Promiseが rejectした理由をユーザー向けのエラー文に整形します。
+ * @param reason rejectの値（LinkCheckErrorならメッセージとURLを含める）
+ */
+const formatRejectedReason = (reason: unknown): string => {
+  if (reason instanceof LinkCheckError) {
+    return `${reason.message}\nlink:\n${reason.link}`;
+  }
+  return `${String(reason)}\nlink:\n（不明）`;
+};
+
+/**
+ * 1件のURLにGETし、最終的なレスポンスURLを返します。失敗時はLinkCheckErrorを投げます。
+ * @param link 検証する絶対 URL
+ */
+const fetchLink = async (link: string): Promise<LinkCheckResult> => {
+  try {
+    const res = await fetch(link, {
+      method: "GET",
+      redirect: "follow",
+      headers: defaultFetchHeaders(),
+    });
+    if (!res.ok) {
+      const detail = res.statusText ? ` ${res.statusText}` : "";
+      throw new LinkCheckError(link, `HTTP ${res.status}${detail}`);
+    }
+    return { link, resUrl: res.url };
+  } catch (e) {
+    if (e instanceof LinkCheckError) {
+      throw e;
+    }
+    const message = e instanceof Error ? e.message : String(e);
+    throw new LinkCheckError(link, message);
+  }
+};
+
+/**
+ * リダイレクト後も「同一ページ」とみなせるか比較します（originとpathname、末尾スラッシュを正規化）。
+ * @param url1 リクエストURL
+ * @param url2 レスポンスの最終URL
+ */
+const isSameUrl = (url1: string, url2: string) => {
   const urlObj1 = new URL(url1);
   const urlObj2 = new URL(url2);
   // urlのoriginが一緒 かつ トレイリングスラッシュを除いたpathnameが一緒なら同じURLとする
@@ -51,10 +106,6 @@ const isSameUrl = (url1:string, url2: string) => {
 // 最後が/(スラッシュ)でおわる文字列の正規表現
 const REG_LAST_SLASH = /\/$/;
 
+/** pathname末尾の `/` を除いて比較用に正規化します */
 const withoutTrailingSlash = (str: string) =>
   REG_LAST_SLASH.test(str) ? str.slice(0, -1) : str;
-
-type Response = {
-  link: string,
-  resUrl: string
-}

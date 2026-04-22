@@ -9,7 +9,7 @@ import { LOG_ERROR } from "../consts/consts";
 export const readFile = (filePath: string) => {
   try {
     return fs.readFileSync(filePath, "utf-8");
-  } catch (e) {
+  } catch {
     console.warn(`${LOG_ERROR}ファイルが存在しません。${filePath}`);
     process.exit(1);
   }
