@@ -27,6 +27,6 @@ const getPrompt = async () => {
   });
 
   // url（https://ics.media/entry/■■■■/）で入力された場合は記事IDに変換
-  const articleId  = res.value.replace(/(http.+ics.media\/entry\/)|\/$/g, "");
+  const articleId = res.value.replace(/(http.+ics.media\/entry\/)|\/$/g, "");
   return `${process.cwd()}${ENTRY_DIR}/${articleId}`;
 };
