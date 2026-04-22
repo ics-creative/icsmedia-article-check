@@ -6,6 +6,8 @@
     "build": "webpack",
     "start-dev": "cross-env NODE_ENV=development ts-node src/index.ts",
     "start-prod": "node build/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "lint-fix": "eslint --fix --ext .ts,.js ."
   },
   "author": "",
@@ -32,6 +34,7 @@
     "ts-loader": "9.4.2",
     "ts-node": "10.9.2",
     "typescript": "~5.6.3",
+    "vitest": "3.2.4",
     "webpack": "5.106.2",
     "webpack-cli": "5.0.2",
     "webpack-node-externals": "3.0.0",
