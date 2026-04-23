@@ -1,3 +1,5 @@
+import { RELATED_ARTICLE_COUNT } from "../../consts/consts";
+
 /** 関連記事の正規表現（マークダウンファイル冒頭のrelated:） */
 const PATTERN_RELATED = /---(.|\n)+related:.+\n(.|\n)+---/;
 
@@ -20,30 +22,27 @@ const countRelated = (text: string): string[] => {
   }
   // 関連記事を抽出
   const stringRelated = lineRelated[0].replace(/^related:|,\s*\n$|\s*\n$/g, "");
-  // カンマ区切りで分割
-  const arrayRelated = stringRelated.split(",");
+  // カンマ区切りで分割（先頭要素の空白のみ除去では重複検出が漏れるため trim する）
+  const arrayRelated = stringRelated.split(",").map((s) => s.trim());
 
   return generateMessages(arrayRelated);
 };
-
-/** 関連記事の規定の数 */
-const PRESCRIBED_NUMBER = 8;
 
 /**
  * 関連記事は規定の個数か？
  * */
 const isValidLength = (array: string[]): boolean => {
-  return array.length === PRESCRIBED_NUMBER;
+  return array.length === RELATED_ARTICLE_COUNT;
 };
 
 /**
  * 関連記事と規定の個数の差分
  * */
 const checkDifference = (array: string[]): string => {
-  const difference = Math.abs(PRESCRIBED_NUMBER - array.length);
-  if (array.length > PRESCRIBED_NUMBER) {
+  const difference = Math.abs(RELATED_ARTICLE_COUNT - array.length);
+  if (array.length > RELATED_ARTICLE_COUNT) {
     return `関連記事が${difference}点多いです。\n`;
-  } else if (array.length < PRESCRIBED_NUMBER) {
+  } else if (array.length < RELATED_ARTICLE_COUNT) {
     return `関連記事が${difference}点足りません。\n`;
   } else {
     return "";

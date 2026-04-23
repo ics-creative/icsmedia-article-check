@@ -1,4 +1,4 @@
-import { LOG_ERROR } from "../consts/consts";
+import { LOG_ERROR, LOG_WARN } from "../consts/consts";
 import * as console from "console";
 
 /**
@@ -11,6 +11,15 @@ import * as console from "console";
  */
 export const printErrorLog = (errorMessages: string[]) => {
   errorMessages.forEach((message) => console.warn(`${LOG_ERROR}${message}`));
+};
+
+/**
+ * 警告ログを出力します（リンク検証で確定できないケースなど）。
+ *
+ * @param warnMessages 警告メッセージ
+ */
+export const printWarnLog = (warnMessages: string[]) => {
+  warnMessages.forEach((message) => console.warn(`${LOG_WARN}${message}`));
 };
 
 /**

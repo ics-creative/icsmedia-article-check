@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { getPath } from "./utils/getPath";
+import { getPath, parseArticleIdFromArgv } from "./utils/getPath";
 import { readFile } from "./utils/readFile";
 import { MD_NAME } from "./consts/consts";
 import { toHtml } from "./utils/toHtml";
@@ -11,15 +11,38 @@ import { fileCapacityCheck } from "./logics/fileCapacityCheck/fileCapacityCheck"
 import { eyecatchCheck } from "./logics/eyecatchCheck/eyecatchCheck";
 import { articleDateCheck } from "./logics/articleCheck/articleDateCheck";
 import { articleRelatedCheck } from "./logics/articleCheck/articleRelatedCheck";
-import { printErrorLog, printNoProblemLog } from "./utils/printErrorLog";
+import {
+  printErrorLog,
+  printNoProblemLog,
+  printWarnLog,
+} from "./utils/printErrorLog";
 
 /**
  * 記事ディレクトリを解決し、マークダウンを読み込んで各種チェックを並列実行し、
  * エラーがあれば警告ログ、なければ成功ログを出力します。
  */
 const validate = async () => {
-  // チェックするファイルがあるディレクトリのパスを取得
-  const basePath = await getPath();
+  let cliArticleId: string | undefined;
+  try {
+    cliArticleId = parseArticleIdFromArgv(process.argv.slice(2));
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    console.error(msg);
+    process.exitCode = 1;
+    return;
+  }
+
+  let basePath: string;
+  try {
+    basePath = await getPath(
+      cliArticleId !== undefined ? { articleId: cliArticleId } : undefined,
+    );
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    console.error(msg);
+    process.exitCode = 1;
+    return;
+  }
   // マークダウンファイルを読み込み
   const mdFile = readFile(`${basePath}/${MD_NAME}`);
   // HTML形式に変換
@@ -42,21 +65,35 @@ const validate = async () => {
     Promise.resolve(articleDateCheck(html)),
   ]);
 
-  // 各チェックでエラーメッセージがあった場合
-  const errors = results
-    .filter(({ status }) => status === "fulfilled")
-    .flatMap((p) => (p as PromiseFulfilledResult<string[]>).value);
+  const linkResult = results[0];
+  const linkOutcome =
+    linkResult.status === "fulfilled"
+      ? linkResult.value
+      : { errors: [] as string[], warnings: [] as string[] };
+
+  // 各チェックでエラーメッセージがあった場合（リンク検査は errors / warnings に分離）
+  const errors = [
+    ...linkOutcome.errors,
+    ...results
+      .slice(1)
+      .filter(({ status }) => status === "fulfilled")
+      .flatMap((p) => (p as PromiseFulfilledResult<string[]>).value),
+  ];
 
   // 各チェックで予期しないエラーがあった場合
   const rejected = results
     .filter(({ status }) => status === "rejected")
     .flatMap((p) => (p as PromiseRejectedResult).reason as string);
 
+  if (linkOutcome.warnings.length > 0) {
+    printWarnLog(linkOutcome.warnings);
+  }
+
   // ログを出力
   if (errors.length > 0 || rejected.length > 0) {
     printErrorLog(errors);
     printErrorLog(rejected);
-  } else {
+  } else if (linkOutcome.warnings.length === 0) {
     printNoProblemLog();
   }
 };

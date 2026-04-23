@@ -4,13 +4,21 @@ const PATTERN_PUBLISHED = /published_date:.*/;
 /** 更新日の日付の正規表現 */
 const PATTERN_MODIFIED = /modified_date:.*/;
 
+/** HTML 行にラップされた日付から比較用の文字列だけを取り出す */
+const stripHtmlTags = (s: string) => s.replace(/<[^>]*>/g, "").trim();
+
 /**
  * 記事の公開日|更新日に続く数字の部分を取得します。
  * */
 const getDate = (textArray: string[], pattern: RegExp) => {
   // 行を抽出
   const lineDate = textArray.find((text) => pattern.test(text));
-  return lineDate?.replace(/(published|modified)_date:\s*/, "") ?? null;
+  const raw = lineDate?.replace(/(published|modified)_date:\s*/, "") ?? null;
+  if (raw === null) {
+    return null;
+  }
+  const cleaned = stripHtmlTags(raw);
+  return cleaned === "" ? null : cleaned;
 };
 
 /**
