@@ -1,4 +1,4 @@
-import MarkdownIt from "markdown-it";
+import { createMarkdownIt } from "./createMarkdownIt";
 
 /** HTMLのセパレーター(改行コード) */
 const SEPARATOR = /\n/g;
@@ -8,6 +8,6 @@ const SEPARATOR = /\n/g;
  * @param mdContent マークダウンファイル
  */
 export const toHtml = (mdContent: string) => {
-  const md = new MarkdownIt({ html: true });
+  const md = createMarkdownIt();
   return md.render(mdContent).split(SEPARATOR);
 };

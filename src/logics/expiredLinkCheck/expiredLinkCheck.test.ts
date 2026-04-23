@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { toHtmlText } from "../../utils/toHtmlText";
 import { expiredLinkCheck, shouldSkipLinkCheck } from "./expiredLinkCheck";
 
 describe("shouldSkipLinkCheck", () => {
@@ -59,6 +60,15 @@ describe("expiredLinkCheck", () => {
     const { errors, warnings } = await expiredLinkCheck(
       '<a name="legacy"></a><p><a href="#legacy">t</a></p>',
     );
+    expect(errors).toEqual([]);
+    expect(warnings).toEqual([]);
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it("markdown-it 見出しに付与された id と #fragment が一致すれば OK（fetch しない）", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    const md = "### マルチページ対応\n\n[同一文書へ](#マルチページ対応)\n";
+    const { errors, warnings } = await expiredLinkCheck(toHtmlText(md));
     expect(errors).toEqual([]);
     expect(warnings).toEqual([]);
     expect(fetchSpy).not.toHaveBeenCalled();
