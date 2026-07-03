@@ -64,7 +64,8 @@ const verifySameDocumentFragment = (
   }
   let fragment = t.slice(1);
   try {
-    fragment = decodeURIComponent(fragment.replace(/\+/g, " "));
+    // フラグメントでは + はスペースを表さない（フォームエンコードとは別物）ためそのまま扱う
+    fragment = decodeURIComponent(fragment);
   } catch {
     return "アンカー（#以降）のデコードに失敗しました。";
   }

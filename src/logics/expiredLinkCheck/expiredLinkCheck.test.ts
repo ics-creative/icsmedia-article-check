@@ -74,6 +74,16 @@ describe("expiredLinkCheck", () => {
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
+  it("+ を含むアンカー（C++ など）はスペースに変換せず照合する", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    const { errors, warnings } = await expiredLinkCheck(
+      '<h3 id="c++">C++</h3><p><a href="#c++">t</a></p>',
+    );
+    expect(errors).toEqual([]);
+    expect(warnings).toEqual([]);
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
   it("npm のパッケージページはレジストリ HEAD で存在確認する", async () => {
     const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(
       (input, init) => {
