@@ -85,16 +85,22 @@ const validate = async () => {
     .filter(({ status }) => status === "rejected")
     .flatMap((p) => (p as PromiseRejectedResult).reason as string);
 
-  if (linkOutcome.warnings.length > 0) {
+  const hasErrors = errors.length > 0 || rejected.length > 0;
+  const hasWarnings = linkOutcome.warnings.length > 0;
+
+  // ログを出力
+  if (!hasErrors && !hasWarnings) {
+    printNoProblemLog();
+    return;
+  }
+
+  if (hasWarnings) {
     printWarnLog(linkOutcome.warnings);
   }
 
-  // ログを出力
-  if (errors.length > 0 || rejected.length > 0) {
+  if (hasErrors) {
     printErrorLog(errors);
     printErrorLog(rejected);
-  } else if (linkOutcome.warnings.length === 0) {
-    printNoProblemLog();
   }
 };
 
