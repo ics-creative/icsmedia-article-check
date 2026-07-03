@@ -19,15 +19,9 @@ describe("shouldSkipLinkCheck", () => {
   });
 });
 
-const requestUrl = (input: RequestInfo | URL): string => {
-  if (typeof input === "string") {
-    return input;
-  }
-  if (input instanceof URL) {
-    return input.href;
-  }
-  return input.url;
-};
+/** fetch モックの第1引数から URL 文字列を取り出す */
+const requestUrl = (input: RequestInfo | URL): string =>
+  input instanceof Request ? input.url : input.toString();
 
 describe("expiredLinkCheck", () => {
   afterEach(() => {
