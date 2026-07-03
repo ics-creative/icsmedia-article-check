@@ -12,6 +12,9 @@ const headingSlugify = (value: string): string =>
 export const createMarkdownIt = (): MarkdownIt => {
   const md = new MarkdownIt({ html: true });
   md.use(markdownItAnchor, {
+    // id 付与は h3 以下に限定する。記事で使える見出しは h3/h4 のみかつ、h2 まで付けると、
+    // フロントマターが setext 記法の h2 と誤解釈された際に id へ published_date: 等が入り込み、articleDateCheck が誤検出するため。
+    level: 3,
     slugify: headingSlugify,
     tabIndex: false,
   });
