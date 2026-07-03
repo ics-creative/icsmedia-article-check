@@ -9,8 +9,6 @@ modified_date: 2026-01-15
 
 ### E2E 無効フィクスチャ（アンカー切れ）
 
-[外部リンク](https://example.com)
-
 [存在しないアンカー](#missing-anchor)
 
 #### 補足

@@ -9,8 +9,6 @@ modified_date: 2026-01-15
 
 ### E2E 無効フィクスチャ（関連記事が1件足りない）
 
-[外部リンク](https://example.com)
-
 [同一文書内](#internal-anchor)
 
 #### 補足

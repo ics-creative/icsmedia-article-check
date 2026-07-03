@@ -32,20 +32,9 @@ const runArticleCheck = async (fixtureSubdir: string) => {
 
 describe("CLI（記事フィクスチャ結合）", () => {
   it(
-    "有効な記事フィクスチャでチェックが通る",
+    "有効な記事フィクスチャでチェックが通る（生 HTML / markdown 見出し両方のアンカーを含む）",
     async () => {
       const { stdout, stderr } = await runArticleCheck("pass");
-      const out = stderr + stdout;
-      expect(out).toContain("✨ この記事に問題はありませんでした。");
-      expect(out).not.toContain("[Error]:");
-    },
-    60_000,
-  );
-
-  it(
-    "生 Markdown 見出しに付いた id と #fragment が一致すればチェックが通る",
-    async () => {
-      const { stdout, stderr } = await runArticleCheck("pass-markdown-anchor");
       const out = stderr + stdout;
       expect(out).toContain("✨ この記事に問題はありませんでした。");
       expect(out).not.toContain("[Error]:");
